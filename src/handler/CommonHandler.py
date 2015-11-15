@@ -1,9 +1,11 @@
 # coding: utf-8
 from tornado.web import RequestHandler
 import settings
+from utils.logger import get_logger
 
 
-class CommonHandler(RequestHandler):
+class WineShopCommonHandler(RequestHandler):
+    logger = get_logger('wineshop')
     def write_error(self, status_code, **kwargs):
         errmsg = ''
         if settings.DEBUG:

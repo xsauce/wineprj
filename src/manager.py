@@ -87,6 +87,7 @@ if __name__ == '__main__':
         manager.product_thumbnail()
         exit(0)
     if args.startwebapp:
+        print 'web application is running...'
         manager.start_webapp(args.startwebapp)
         exit(0)
 
