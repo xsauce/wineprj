@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block header %}{% end %}
+{% block title %}喻家山下-葡萄酒名录{% end %}
+{% block body %}
+<div class="query_condition">
+    <!--<p id="brands">品牌-->
+
+        <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="&brand="></a>-->
+
+    <!--</p>-->
+
+    <!--<p id="countries">国家-->
+
+        <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:void(0);"></a>-->
+
+    <!--</p>-->
+
+    <!--<p id="areas">产区-->
+
+        <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:void(0);"></a>-->
+
+
+    <!--</p>-->
+    {% if grape_sort %}
+    <p id="grape_sorts">
+        葡萄品种:
+        {% for sort in grape_sort %}
+        &nbsp;&nbsp;|&nbsp;&nbsp;<a href="/products?grape_sort={{sort}}">{{ sort }}</a>
+        {% end %}
+    </p>
+    {% end %}
+
+    <!--<p id="scenes">适用场景-->
+
+    <!--</p>-->
+    <!--<p id="wine_levels">等级-->
+
+    <!--</p>-->
+
+    <!--<p id="price_ranges">价格-->
+
+    <!--</p>-->
+</div>
+<ul>
+    {% for product in product_list %}
+    <li>
+
+        <p>
+            <img src="{{ static_url(product['fimg'])}}" alt="{{ product['name'] }}"/>
+            <a href="/product_detail/{{ product['_id'] }}">{{ product['name']}}</a> {{ product['description'] }}</p>
+        <p>￥{{ product['price'] }}</p>
+        <p>已有{{ product['comment_count'] }}人评价</p>
+        <p><input type="button" value="加入购物车"/></p>
+    </li>
+    {% end %}
+</ul>
+<div class="paginator">
+</div>
+{% end %}
+{% block footer %}
+{% end %}

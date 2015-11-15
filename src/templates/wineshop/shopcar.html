@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block header %}{% end %}
+{% block title %}购物车{% end %}
+{% block body %}
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"
+         style="width: 33%;">
+        购物车
+    </div>
+</div>
+
+<form action="submit_shopcar" method="post">
+    <div class="shopcar_list">
+        <h2>我的购物车</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>商品</th>
+                <th>属性</th>
+                <th>单价</th>
+                <th>数量</th>
+                <th>小计</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for product in product_list_in_shopcar %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.volume }}, {{ product.attachment }}</td>
+                <td>￥{{ product.price }}</td>
+                <td><input type="number" value="{{ product.purchase_count }}"
+                           name="product-{{product.id}}-purchase_count"/></td>
+                <td><span id="product-{{ product.id }}-sum">{{ product.price * product.purchase_count }}</span></td>
+                <td><input type="button" id="{{ product.id}}-deletebtn" value="删除" class="btn btn-danger"/></td>
+            </tr>
+            {% end %}
+            </tbody>
+        </table>
+        <div class="sum_product_price">
+            <p>共<span id="product_count_in_shopcar">{{ product_count_in_shopcar }}</span>件 商品金额: ￥<span
+                    id="product_sum_price_in_shopcar">{{ product_sum_price_in_shopcar }}</span></p>
+
+            <p>运费: ￥<span id="shipping_cost">{{ shipping_cost }}</span></p>
+
+            <p>总计金额: ￥<span id="total_price">{{ product_sum_price_in_shopcar + shipping_cost }}</span></p>
+        </div>
+        <div class="btn_list">
+            <input type="button" value="继续购物" class="btn btn-default" id="return_shopping_btn"/>
+            <input type="button" value="下单结算" class="btn btn-primary" id="confirm_order_btn"/>
+        </div>
+    </div>
+</form>
+{% end %}
+{% block footer %}
+{% end %}

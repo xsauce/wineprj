@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block header %}{% end %}
+{% block title %}订单详情{% end %}
+{% block body %}
+<div class="order_base_info">
+    <h2>订单信息</h2>
+
+    <p>
+        <label>订单编号: {{ order.num}} </label>
+    </p>
+
+    <p>
+        <label>订单金额: ￥{{ order.sum_price}} </label>
+    </p>
+
+    <p>
+        <label>订单状态: {{ order.state }}</label>
+    </p>
+</div>
+<div class="shipping_process_info">
+    <h2>配送信息</h2>
+    {% for process in shipping_process %}
+    <p>{{ process.datetime }} {{ process.content }}</p>
+    {% end %}
+</div>
+<div class="receive_addr">
+    <h2>收货信息</h2>
+
+    <p>
+        <label>收货地址: {{ receive_info.addr }} </label>
+    </p>
+
+    <p>
+        <label>收货人姓名: {{ receive_info.receiver_name }} </label>
+    </p>
+
+    <p>
+        <label>收货人电话: {{ receive_info.phone }}</label>
+    </p>
+</div>
+{% if order.need_receipt %}
+<div class="receipt_info">
+    <h2>发票信息</h2>
+
+    <p>发票类型: {{ receipt.sort }}</p>
+
+    <p>发票抬头: {{ receipt.title }}</p>
+
+    <p>发票内容: {{ receipt.content }}</p>
+</div>
+
+<div class="shopcar_list">
+    <h2>我的订单</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>商品</th>
+            <th>属性</th>
+            <th>单价</th>
+            <th>数量</th>
+            <th>小计</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in product_in_order %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.volume }}, {{ product.attachment }}</td>
+            <td>￥{{ product.price }}</td>
+            <td>{{ product.purchase_count }}</td>
+            <td><span id="product-{{ product.id }}-sum">{{ product.price * product.purchase_count }}</span></td>
+        </tr>
+        {% end %}
+        </tbody>
+    </table>
+</div>
+<div class="sum_product_price">
+    <p>共<span id="product_count_in_shopcar">{{ product_count_in_order }}</span>件 商品金额: ￥<span
+            id="product_sum_price_in_shopcar">{{ product_sum_price_in_order }}</span></p>
+
+    <p>运费: ￥<span id="shipping_cost">{{ shipping_cost }}</span></p>
+
+    <p>总计金额: ￥<span id="total_price">{{ product_sum_price_in_order + shipping_cost }}</span></p>
+</div>
+
+{% end %}
+
+{% end %}
+{% block footer %}
+{% end %}

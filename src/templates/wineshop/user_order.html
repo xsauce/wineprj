@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block header %}{% end %}
+{% block title %}我的订单{% end %}
+{% block body %}
+    <div class="purchase_list">
+            <h2>我的订单</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>订单编号</th>
+                    <th>金额</th>
+                    <th>下单时间</th>
+                    <th>订单状态</th>
+                    <th>支付方式</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order in user_order %}
+                <tr>
+                    <td>
+                        {{ order.id }}({{ order.product_count }}商品)
+                        {% for thumbnail in image_list %}
+                            <img src="{{ thumbnail.url }}"/>
+                        {% end %}
+                    </td>
+                    <td>{{ order.sum_price }}</td>
+                    <td>{{ order.started_at }}</td>
+                    <td>{{ order.state }}</td>
+                    <td>{{ order.pay_sort }}</td>
+                    <td>
+                        <p><a href="user_order_detail/{{ order.id }}">查看/修改</a></p>
+                        <p><a href="readd_shop_car/{{ order.id }}">再次购买</a></p>
+                    </td>
+                </tr>
+                {% end %}
+                </tbody>
+            </table>
+{% end %}
+{% block footer %}
+{% end %}
