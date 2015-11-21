@@ -9,7 +9,7 @@
     </div>
 </div>
 
-<form action="submit_shopcar" method="post">
+<form action="/confirm_order" method="post">
     <div class="shopcar_list">
         <h2>我的购物车</h2>
         <table class="table">
@@ -26,6 +26,7 @@
             <tbody>
             {% for product in product_list_in_shopcar %}
             <tr>
+                <input type="hidden" value="{{ product['_id'] }}" name="product_id_list_in_shopcar"/>
                 <td>{{ product['name'] }}</td>
                 <td>{{ product['volume'] }}ml,
                     {% for a in product['attachment'] %}
@@ -44,14 +45,11 @@
         <div class="sum_product_price">
             <p>共<span id="product_count_in_shopcar">{{ product_count_in_shopcar }}</span>件 商品金额: ￥<span
                     id="product_sum_price_in_shopcar">{{ product_sum_price_in_shopcar }}</span></p>
-
-            <p>运费: ￥<span id="shipping_cost">{{ shipping_cost }}</span></p>
-
-            <p>总计金额: ￥<span id="total_price">{{ product_sum_price_in_shopcar + shipping_cost }}</span></p>
+            <p>总计金额: ￥<span id="total_price">{{ product_sum_price_in_shopcar }}</span></p>
         </div>
         <div class="btn_list">
             <input type="button" value="继续购物" class="btn btn-default" id="return_shopping_btn"/>
-            <input type="button" value="下单结算" class="btn btn-primary" id="confirm_order_btn"/>
+            <input type="submit" value="下单结算" class="btn btn-primary" id="confirm_order_btn"/>
         </div>
     </div>
 </form>

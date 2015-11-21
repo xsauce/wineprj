@@ -1,14 +1,19 @@
 # coding:utf-8
 from tornado.web import url
 from handler.wineshop import *
+from handler.tools import *
 from handler.test import TestHandler
 
 __author__ = 'sam'
+
 
 url_routes = [
         url(r'/test$', TestHandler, name='test'),
         url(r"^/$", HomeHandler, name='home'),
         url(r"^/products$", ProductsHandler, name='products'),
         url(r"^/product_detail/([\d\w-]+)$", ProductDetailHandler, name='product_detail'),
-        url(r"^/buy_product/([\d\w-]+)$", BuyProductHandler, name='buy_product'),
+        url(r"^/shopcar/([\d\w-]+)$", ShopCarHandler, name='shopcar'),
+        url(r"^/confirm_order$", ConfirmOrderHandler, name='confirm_order'),
+        url(r'^/verify_code$', VerificationCodeHandler, name='verfiy_code'),
+        url(r'^/submit_order$', SubmitOrderHandlder, name='submit_order')
     ]

@@ -3,7 +3,6 @@ from utils.logger import get_logger
 __author__ = 'sam'
 from pymongo import MongoClient
 
-
 class MongoHelper(object):
 
     def __init__(self, db_name=settings.CURRENT_DB):
@@ -13,10 +12,9 @@ class MongoHelper(object):
 
     def connect(self):
         try:
-            self.client = MongoClient(
-                self.db_conf['host'],
-                self.db_conf['port'])
-            return self.client[self.db_name]
+            self.client = MongoClient(self.db_conf['uri'])
+            db = self.client[self.db_name]
+            return db
         except Exception, e:
             self.logger.critical(str(e))
 

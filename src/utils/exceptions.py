@@ -11,3 +11,9 @@ class NotFoundProduct(Exception):
         if not settings.DEBUG:
             return u'我家酒窖没有这瓶酒，等我去进货'
         return 'No found Product %s' % self.product_id
+
+class OrderIsEmpty(Exception):
+    def __str__(self):
+        if not settings.DEBUG:
+            return u'购物车里空空的，赶紧买买买'
+        return 'Order is Empty'
