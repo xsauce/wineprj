@@ -32,13 +32,12 @@
             <li><a href="">登录</a></li>
             <li><a href="">注册</a></li>
             <li><a href="">订单</a></li>
-            <li><a href="">购物车{{ count_in_shopcar }}</a></li>
+            <li><a href="/shopcar/">购物车<span class="badge">{{ count_in_shopcar }}</span></a></li>
         </ul>
     </div>
 </div>
 <div class="container content-padding">
     {% block body %}
-
     {% end %}
 </div>
 </body>

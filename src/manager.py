@@ -13,6 +13,17 @@ class WebManager(object):
     def __init__(self):
         pass
 
+    def shell(self):
+        import code
+        import sys
+        sys.path.append('handler/')
+        sys.path.append('logiclayer/')
+        sys.path.append('utils/')
+        sys.path.append('models/')
+        sys.path.append('views/')
+        code.interact(local={})
+
+
     def start_webapp(self, port):
         app = webapp()
         app.listen(port)
@@ -111,6 +122,7 @@ if __name__ == '__main__':
     parser.add_argument('-startwebapp', help='start web app', default=0, type=int, metavar='port')
     parser.add_argument('-testdb', help='init test db', action='store_true')
     parser.add_argument('-product_thumbnail', action='store_true')
+    parser.add_argument('-shell', action='store_true')
     args = parser.parse_args(sys.argv[1:])
     manager = WebManager()
     if args.testdb:
@@ -123,6 +135,8 @@ if __name__ == '__main__':
         print 'web application is running...'
         manager.start_webapp(args.startwebapp)
         exit(0)
+    if args.shell:
+        manager.shell()
 
 
 

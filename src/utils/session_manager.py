@@ -49,7 +49,7 @@ class Session(object):
                 result = db.session.find_one({'_id': ObjectId(self.session_id)})
                 value = result.get('value', None)
                 self.session_value = json.loads(value) if value else {}
-                self.expiry_days = result['expiry_days']
+                self.expiry_days = result['expiry_time']
             else:
                 raise Exception('incorrect session save location')
         else:

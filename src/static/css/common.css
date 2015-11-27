@@ -9,3 +9,6 @@
 .verify_code{
     cursor: pointer;
 }
+.error{
+    color:red;
+}

@@ -13,25 +13,25 @@ MODEL_MODULES = (
 )
 
 # DB settings
-_sqlite3_db_conf = {
-        'uri': os.path.join(ROOT_DIR, 'test.db')
-    }
 _mongo_db_conf = {
     'uri': 'mongodb://winedb:' + urllib.quote_plus('winedb$123') + '@52.192.129.192:27017'
 }
-_mongo_test_conf = {
-    'uri': 'mongodb://localhost:27017'
+_mysql_db_conf = {
+    'host': 'localhost',
+    'port': 3306,
+    'user': 'wineprj',
+    'password': 'wineprj$123'
 }
 
 DB_CONFIG = {
-    'wineshop': {
-        'type': 'mongodb',
-        'conf': _mongo_test_conf
+    'wineprj': {
+        'type': 'mysql',
+        'conf': _mysql_db_conf
     }
 }
 # ---
 PHOTO_DIR = os.path.join(ROOT_DIR, 'static', 'photo')
-CURRENT_DB = 'wineshop'
+CURRENT_DB = 'wineprj'
 LOG_CONF = {
     'dir': '/var/log/wineprj',
     'level': 'DEBUG'

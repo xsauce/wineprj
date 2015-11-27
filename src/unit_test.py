@@ -12,8 +12,8 @@ class TestWineShop(unittest.TestCase):
         db.close()
     def test_common_model(self):
         class T(CommonModel):
-            a = Field()
-            b = Field()
+            a = ''
+            b = ''
         t = T({'a': 1, 'b': True})
         self.assertTrue('a' in t.all_field())
         self.assertEquals(t.a, 1)
