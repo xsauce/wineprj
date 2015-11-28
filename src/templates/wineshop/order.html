@@ -108,8 +108,9 @@
                     <div class="col-sm-offset-2 col-sm-4">
                         <select name="receipt_content" class="form-control">
                             <option value="">选择发票内容</option>
-                            <option value="酒类" {% if post_data.get('receipt_content','')==u'酒类' %}selected="selected"{% end %}>酒类</option>
-                            <option value="食品" {% if post_data.get('receipt_content','')==u'食品' %}selected="selected"{% end %}>食品</option>
+                            {% for content in receipt_content %}
+                            <option value="{{ content }}" {% if post_data.get('receipt_content','')==content %}selected="selected"{% end %}>{{ content }}</option>
+                            {% end %}
                         </select>
                         {% if field_error.get('receipt_content','') %}
                         <span class="error">{{ field_error['receipt_content'] }}</span>
@@ -172,11 +173,7 @@
                 <tr>
                     <input type="hidden" value="{{ product['_id'] }}" name="product_id_list_in_order"/>
                     <td>{{ product['name'] }}</td>
-                    <td>{{ product['volume'] }}
-                        {% for a in product['attachment'] %}
-                        <a href="/product_detail/{{ attachment_dict[a]['_id'] }}">{{ attachment_dict[a]['name'] }}</a>
-                        {% end %}
-                    </td>
+                    <td>{{ product['volume'] }}</td>
                     <td>￥{{ product['price'] }}</td>
                     <td><input type="number" value="{{ product['purchase_count'] }}"
                                name="product-{{product['_id']}}-purchase_count"/></td>

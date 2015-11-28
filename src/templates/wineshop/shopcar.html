@@ -22,11 +22,7 @@
             <tr>
                 <input type="hidden" value="{{ product['_id'] }}" name="product_id_list_in_shopcar"/>
                 <td>{{ product['name'] }}</td>
-                <td>{{ product['volume'] }}ml,
-                    {% for a in product['attachment'] %}
-                    <a href="/product_detail/{{ attachment_dict[a]['_id'] }}">{{ attachment_dict[a]['name'] }}</a>
-                    {% end %}
-                </td>
+                <td>{{ product['volume'] }}ml</td>
                 <td>￥{{ product['price'] }}</td>
                 <td><input type="number" value="{{ product['purchase_count'] }}"
                            name="product-{{ product['_id'] }}-purchase_count"/></td>

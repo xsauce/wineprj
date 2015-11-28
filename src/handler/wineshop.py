@@ -1,16 +1,15 @@
 # coding:utf-8
 import re
 import traceback
-from bson import ObjectId
 from handler.CommonHandler import WineShopCommonHandler
 from logiclayer.wineshop import *
 from utils.exceptions import OrderIsEmpty, SessionOverTime
 from utils.image_tool import get_thumbnail_uri
-from utils.mongohelper import MongoHelper
+# from utils.mongohelper import MongoHelper
 from utils.page_func import tojsonstr
 
 def _show_product_list_with_count(pid_with_count):
-    product_list = get_product_with_id_from_db(pid_with_count.keys())
+    product_list = ProductLL.get_product_by_pid_list(pid_with_count.keys())
     product_sum_count, product_sum_price = 0, 0
     for p in product_list:
         purchase_count = pid_with_count[p['pid']]
@@ -21,7 +20,7 @@ def _show_product_list_with_count(pid_with_count):
 
 class HomeHandler(WineShopCommonHandler):
     def get(self):
-        poster_list = get_home_posts_from_db('home')
+        poster_list = PosterLL.get_home_posts('home')
         self.page_render('wineshop/home.html', poster_list=poster_list)
 
 
@@ -43,8 +42,8 @@ class ProductsHandler(WineShopCommonHandler):
     def get(self):
         query_args = self.request.query_arguments
         query_condition = self._build_query_condition(query_args)
-        product_result = query_product_list_from_db(query_condition)
-        grape_sort = get_grape_sort_list()
+        product_result = ProductLL.query_product_list(query_condition)
+        grape_sort = ProductLL.get_grape_sort_list()
         product_list = []
         for product in product_result:
             if product['img']:
@@ -57,8 +56,7 @@ class ProductsHandler(WineShopCommonHandler):
 class ProductDetailHandler(WineShopCommonHandler):
     def get(self, product_id):
         if product_id:
-            db = MongoHelper().connect()
-            product = db.product.find_one({'_id': ObjectId(product_id)})
+            product = ProductLL.get_one_by_pid(product_id)
             if not product:
                 errmsg = 'not found product %s in ProductDetailHanlder' % product_id
                 self.logger.error(errmsg)
@@ -81,7 +79,6 @@ class ShopCarHandler(WineShopCommonHandler):
             shopcar_dict[p_split[0]] = int(p_split[1])
         if product_id:
             shopcar_dict[product_id] = shopcar_dict.setdefault(product_id, 0) + 1
-        db = MongoHelper().connect()
         product_list_in_shopcar, product_count_in_shopcar, product_sum_price_in_shopcar = _show_product_list_with_count(shopcar_dict)
         self.page_render('wineshop/shopcar.html',
                          product_list_in_shopcar=product_list_in_shopcar,
@@ -99,10 +96,9 @@ class ConfirmOrderHandler(WineShopCommonHandler):
             if not order:
                 #order is empty
                 raise OrderIsEmpty()
-            db = MongoHelper().connect()
             product_list_order, product_sum_count, product_sum_price = _show_product_list_with_count(order)
-            ship_cities = get_all_ship_cities_from_db()
-            pay_sorts = list(db.pay_sort.find())
+            ship_cities = ShipCityLL.get_all_ship_cities()
+            pay_sorts = PaySortLL.get_all_sort()
             shipping_cost = 5
             self.page_render('wineshop/order.html',
                              product_list_order=product_list_order,
@@ -184,9 +180,8 @@ class SubmitOrderHandlder(WineShopCommonHandler):
         return field_error
 
     def post(self):
-        db = MongoHelper().connect()
-        ship_cities = get_all_ship_cities_from_db()
-        pay_sorts = list(db.pay_sort.find())
+        ship_cities = ShipCityLL.get_all_ship_cities()
+        pay_sorts = PaySortLL.get_all_sort()
         post_data = self._get_post_data()
         field_error = self._valid_post_data(post_data, ship_cities, pay_sorts)
         product_list_order, product_sum_count, product_sum_price = _show_product_list_with_count(post_data['order'])
@@ -203,10 +198,8 @@ class SubmitOrderHandlder(WineShopCommonHandler):
                              field_error=field_error,
                              post_data=post_data)
         else:
+            pass
             #insert order, state:new
-            db.order.insert_one({
-
-            })
             #update store count, sale count
 
 

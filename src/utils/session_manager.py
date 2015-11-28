@@ -1,9 +1,9 @@
-from bson import ObjectId
+import uuid
+from utils.sqlhelper import SqlHelper
 
 __author__ = 'sam'
 import json
 import traceback
-from utils.mongohelper import MongoHelper
 from settings import COOKIE_EXPIRY_DAYS
 
 SESSION_SAVE_INTO_DB = 1
@@ -15,18 +15,36 @@ class Session(object):
         self.session_value = {}
         self.expiry_days = expiry_days
 
+    def _query_session_by_id(self, session_id):
+        sqlhelper = SqlHelper()
+        rs = sqlhelper.query('select * from session where sid=?sid', {'sid': session_id})
+        if rs:
+            return rs
+        else:
+            raise Exception('Session %s No Found or Expiry' % session_id)
+
+    def _set_session(self, value_str, expiry_time, session_id=''):
+        session_id = session_id if session_id else str(uuid.uuid4())
+        sqlhelper = SqlHelper()
+        sqlhelper.execute('''
+            insert into session(sid, sval, expiry_time, created_at, updated_at)
+            values(%s, %s, %s, NOW(), NOW())
+            on ON DUPLICATE KEY UPDATE s_val=values(sval), expiry_time=values(expiry_time);''' % (session_id, value_str, expiry_time))
+        sqlhelper.commit()
+        sqlhelper.close()
+        return session_id
+
     def set_item(self, key, value):
         try:
             if self.save_location == SESSION_SAVE_INTO_DB:
-                db = MongoHelper().connect()
                 self._get_session()
                 self.session_value.update({key: value})
                 value_str = json.dumps(self.session_value)
                 if not self.session_id:
-                    result = db.session.insert_one({'value': value_str, 'expiry_time': self.expiry_days})
+                    result = self._set_session(value_str=value_str, expiry_time=self.expiry_days)
                     self.session_id = str(result.inserted_id)
                 else:
-                    result = db.session.update_one({'_id': ObjectId(self.session_id)}, {'value': value_str, 'expiry_time': self.expiry_days})
+                    result = self._set_session(value_str=value_str, expiry_time=self.expiry_days, session_id=self.session_id)
                     if result.modified_count != 1 and result.matched_count != 1:
                         raise Exception('fail to update session, modified_count:%s, matched_count:%s', (result.modified_count, result.matched_count))
             else:
@@ -45,9 +63,8 @@ class Session(object):
     def _get_session(self):
         if self.session_id:
             if self.save_location == SESSION_SAVE_INTO_DB:
-                db = MongoHelper().connect()
-                result = db.session.find_one({'_id': ObjectId(self.session_id)})
-                value = result.get('value', None)
+                result = self._query_session_by_id(self.session_id)
+                value = result.get('sval', None)
                 self.session_value = json.loads(value) if value else {}
                 self.expiry_days = result['expiry_time']
             else:

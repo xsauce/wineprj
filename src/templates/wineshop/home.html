@@ -19,7 +19,7 @@
             {% else %}
             <div class="item">
                 {% end %}
-                <img src="{{ static_url(poster['uri']) }}" alt="{{ poster['description'] }}">
+                <img src="{{ static_url('photo/' + poster['poster_id']) }}" alt="{{ poster['description'] }}">
             </div>
             {% end %}
         </div>

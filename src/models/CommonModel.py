@@ -22,20 +22,24 @@ class CommonModel(object):
         for k, v in dic.items():
             setattr(obj, k, v)
         return obj
+    @classmethod
+    def to_sql_param(cls, field):
+        return '%(' + field + ')s'
 
     @classmethod
-    def to_sql_params(cls, fields):
-        return ['?' + x for x in fields]
+    def to_sql_param_list(cls, fields):
+        return ['%(' + x + ')s' for x in fields]
 
     @classmethod
     def all_field(cls):
-        return filter(lambda x: not x.startswith('__'), cls.__dict__.keys())
+        obj_dict = cls.__dict__
+        return filter(lambda x: type(obj_dict[x]) == type(None) and not x.startswith('__'), obj_dict)
 
     @classmethod
     def find(cls, select_fields='', sql_value=None, where_str='', return_obj=False):
         select_fields = select_fields if select_fields else cls.all_field()
         if where_str:
-            sql = 'select %s from %s where %s' %(select_fields, cls.__tablename__, where_str)
+            sql = 'select %s from %s where %s' % (select_fields, cls.__tablename__, where_str)
         else:
             sql = 'select %s from %s' % (select_fields, cls.__tablename__)
         result = SqlHelper().query(sql, sql_value)
@@ -48,7 +52,7 @@ class CommonModel(object):
     def find_one(cls, select_fields='', sql_value=None, where_str='', return_obj=False):
         select_fields = select_fields if select_fields else cls.all_field()
         if where_str:
-            sql = 'select %s from %s where %s' %(select_fields, cls.__tablename__, where_str)
+            sql = 'select %s from %s where %s' % (select_fields, cls.__tablename__, where_str)
         else:
             sql = 'select %s from %s' % (select_fields, cls.__tablename__)
         result = SqlHelper().query_one(sql, sql_value)
@@ -58,37 +62,37 @@ class CommonModel(object):
     @classmethod
     def insert(cls, insert_value, insert_fields=None):
         insert_fields = insert_fields if insert_fields else cls.all_field()
-        sql = 'insert into %s(%s) values(%s)' % (cls.__tablename__, ','.join(insert_fields), ','.join(cls.to_sql_params(insert_fields)))
+        sql = 'insert into %s(%s) values(%s)' % (cls.__tablename__, ','.join(insert_fields), ','.join(cls.to_sql_param_list(insert_fields)))
         return SqlHelper().execute(sql, insert_value)
 
     @classmethod
     def insert_many(cls, insert_values, insert_fields=None):
         insert_fields = insert_fields if insert_fields else cls.all_field()
-        sql = 'insert into %s(%s) values(%s)' % (cls.__tablename__, ','.join(insert_fields), ','.join(['?' + x for x in insert_fields]))
+        sql = 'insert into %s(%s) values(%s)' % (cls.__tablename__, ','.join(insert_fields), ','.join(cls.to_sql_param_list(insert_fields)))
         return SqlHelper().execute_many(sql, insert_values)
 
     @classmethod
     def update(cls, update_value, update_fields, where_str):
-        update_fields_str = ','.join([f + '=?' + f for f in update_fields])
+        update_fields_str = ','.join(cls.to_sql_param_list(update_fields))
         where_str = 'where ' + where_str if where_str else ''
         sql = 'update %s set %s %s' % (cls.__tablename__, update_fields_str, where_str)
         return SqlHelper().execute(sql, update_value)
 
     @classmethod
     def update_many(cls, update_values, update_fields, where_str):
-        update_fields_str = ','.join([f + '=?' + f for f in update_fields])
+        update_fields_str = ','.join(cls.to_sql_param_list(update_fields))
         where_str = 'where ' + where_str if where_str else ''
         sql = 'update %s set %s %s' % (cls.__tablename__, update_fields_str, where_str)
         return SqlHelper().execute_many(sql, update_values)
 
     @classmethod
-    def delete(cls, delete_value, where_str):
+    def delete(cls, delete_value, where_str=''):
         where_str = 'where ' + where_str if where_str else ''
         sql = 'delete from %s %s' % (cls.__tablename__, where_str)
         return SqlHelper().execute(sql, delete_value)
 
     @classmethod
-    def delete_many(cls, delete_values, where_str):
+    def delete_many(cls, delete_values, where_str=''):
         where_str = 'where ' + where_str if where_str else ''
         sql = 'delete from %s %s' % (cls.__tablename__, where_str)
         return SqlHelper().execute_many(sql, delete_values)
