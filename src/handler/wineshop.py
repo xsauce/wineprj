@@ -12,7 +12,7 @@ def _show_product_list_with_count(pid_with_count):
     product_list = ProductLL.get_product_by_pid_list(pid_with_count.keys())
     product_sum_count, product_sum_price = 0, 0
     for p in product_list:
-        purchase_count = pid_with_count[p['pid']]
+        purchase_count = int(pid_with_count[p['pid']])
         p['purchase_count'] = purchase_count
         product_sum_price += p['price'] * purchase_count
         product_sum_count += purchase_count
@@ -46,9 +46,8 @@ class ProductsHandler(WineShopCommonHandler):
         grape_sort = ProductLL.get_grape_sort_list()
         product_list = []
         for product in product_result:
-            if product['img']:
-                imgs = product['img'].split(',')
-                product['fimg'] = get_thumbnail_uri(imgs[0])
+            if product['img_url']:
+                product['fimg'] = get_thumbnail_uri(product['img_url'][0])
             product_list.append(product)
         self.page_render('wineshop/products.html', product_list=product_list, grape_sort=grape_sort)
 
@@ -99,6 +98,7 @@ class ConfirmOrderHandler(WineShopCommonHandler):
             product_list_order, product_sum_count, product_sum_price = _show_product_list_with_count(order)
             ship_cities = ShipCityLL.get_all_ship_cities()
             pay_sorts = PaySortLL.get_all_sort()
+            receipt_content = ReceiptLL.get_all_content()
             shipping_cost = 5
             self.page_render('wineshop/order.html',
                              product_list_order=product_list_order,
@@ -106,6 +106,7 @@ class ConfirmOrderHandler(WineShopCommonHandler):
                              product_sum_price=product_sum_price,
                              shipping_cost=shipping_cost,
                              ship_cities=ship_cities,
+                             receipt_content=receipt_content,
                              pay_sorts=pay_sorts,
                              field_error={},
                              post_data={},
@@ -138,7 +139,7 @@ class SubmitOrderHandlder(WineShopCommonHandler):
         post_data['order'] = order
         return post_data
 
-    def _valid_post_data(self, post_data, ship_cities, pay_sort):
+    def _valid_post_data(self, post_data, ship_cities, pay_sort, receipt_content):
         field_error = {}
         if post_data['addr_level1'] not in ship_cities.keys():
             field_error['addr_level1'] = u'请选择正确的直辖市或省份'
@@ -148,7 +149,7 @@ class SubmitOrderHandlder(WineShopCommonHandler):
         if not post_data['addr_level3']:
             field_error['addr_level3'] = u'请填写详细地址'
 
-        if post_data['pay_sort'] not in [x['name'] for x in pay_sort]:
+        if post_data['pay_sort'] not in pay_sort:
             field_error['pay_sort'] = u'请选择正确的支付方式'
 
         if post_data['receiver'] == '':
@@ -169,6 +170,8 @@ class SubmitOrderHandlder(WineShopCommonHandler):
                 field_error['receipt_sort'] = u'请选择正确的发票类型'
             if not post_data['receipt_content']:
                 field_error['receipt_content'] = u'请选择发票内容'
+            elif post_data['receipt_content'] not in receipt_content:
+                field_error['receipt_content'] = u'请选择正确的发票内容'
             if receipt_sort == u'公司发票' and post_data['receipt_title'] == '':
                 field_error['receipt_title'] = u'开公司发票,请填写发票抬头'
 
@@ -182,8 +185,9 @@ class SubmitOrderHandlder(WineShopCommonHandler):
     def post(self):
         ship_cities = ShipCityLL.get_all_ship_cities()
         pay_sorts = PaySortLL.get_all_sort()
+        receipt_content = ReceiptLL.get_all_content()
         post_data = self._get_post_data()
-        field_error = self._valid_post_data(post_data, ship_cities, pay_sorts)
+        field_error = self._valid_post_data(post_data, ship_cities, pay_sorts, receipt_content)
         product_list_order, product_sum_count, product_sum_price = _show_product_list_with_count(post_data['order'])
         shipping_cost = 5
         if field_error:
@@ -193,6 +197,7 @@ class SubmitOrderHandlder(WineShopCommonHandler):
                              product_sum_price=product_sum_price,
                              shipping_cost=shipping_cost,
                              ship_cities=ship_cities,
+                             receipt_content=receipt_content,
                              pay_sorts=pay_sorts,
                              tojsonstr=tojsonstr,
                              field_error=field_error,

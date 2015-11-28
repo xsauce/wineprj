@@ -1,10 +1,11 @@
 __author__ = 'sam'
-from utils.sqlhelper import SqlHelper
+from utils.sqlhelper import SqlHelper, MySQLParameterize
 
 
 class CommonModel(object):
     __tablename__ = ''
-
+    to_sql_param = MySQLParameterize.to_sql_param
+    to_sql_param_list = MySQLParameterize.to_sql_param_list
     def __init__(self, **fields):
         for k, v in fields.items():
             if k in self.all_field():
@@ -22,13 +23,6 @@ class CommonModel(object):
         for k, v in dic.items():
             setattr(obj, k, v)
         return obj
-    @classmethod
-    def to_sql_param(cls, field):
-        return '%(' + field + ')s'
-
-    @classmethod
-    def to_sql_param_list(cls, fields):
-        return ['%(' + x + ')s' for x in fields]
 
     @classmethod
     def all_field(cls):
@@ -38,10 +32,8 @@ class CommonModel(object):
     @classmethod
     def find(cls, select_fields='', sql_value=None, where_str='', return_obj=False):
         select_fields = select_fields if select_fields else cls.all_field()
-        if where_str:
-            sql = 'select %s from %s where %s' % (select_fields, cls.__tablename__, where_str)
-        else:
-            sql = 'select %s from %s' % (select_fields, cls.__tablename__)
+        where_str = 'where %s' % where_str if where_str else ''
+        sql = 'select %s from %s %s' % (','.join(select_fields), cls.__tablename__, where_str)
         result = SqlHelper().query(sql, sql_value)
         if return_obj:
             return [cls.dbrow_to_obj(x) for x in result]
@@ -51,13 +43,13 @@ class CommonModel(object):
     @classmethod
     def find_one(cls, select_fields='', sql_value=None, where_str='', return_obj=False):
         select_fields = select_fields if select_fields else cls.all_field()
-        if where_str:
-            sql = 'select %s from %s where %s' % (select_fields, cls.__tablename__, where_str)
-        else:
-            sql = 'select %s from %s' % (select_fields, cls.__tablename__)
+        where_str = 'where %s' % where_str if where_str else ''
+        sql = 'select %s from %s %s' % (','.join(select_fields), cls.__tablename__, where_str)
         result = SqlHelper().query_one(sql, sql_value)
         if return_obj:
-            return cls.dbrow_to_obj(result, select_fields)
+            return [cls.dbrow_to_obj(x) for x in result]
+        else:
+            return result
 
     @classmethod
     def insert(cls, insert_value, insert_fields=None):

@@ -5,19 +5,19 @@
 <div class="query_condition">
     <!--<p id="brands">品牌-->
 
-        <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="&brand="></a>-->
+    <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="&brand="></a>-->
 
     <!--</p>-->
 
     <!--<p id="countries">国家-->
 
-        <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:void(0);"></a>-->
+    <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:void(0);"></a>-->
 
     <!--</p>-->
 
     <!--<p id="areas">产区-->
 
-        <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:void(0);"></a>-->
+    <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:void(0);"></a>-->
 
 
     <!--</p>-->
@@ -44,12 +44,15 @@
 <ul>
     {% for product in product_list %}
     <li>
-
         <p>
-            <img src="{{ static_url(product['fimg'])}}" alt="{{ product['name'] }}"/>
-            <a href="/product_detail/{{ product['_id'] }}">{{ product['name']}}</a> {{ product['description'] }}</p>
+            <a href="/product_detail/{{ product['pid'] }}">
+                <img src="{{ static_url(product['fimg'])}}" alt="{{ product['name'] }}"/>
+                {{ product['name']}}</a>
+            {{ product['description'] }}]
+        </p>
+
         <p>￥{{ product['price'] }}</p>
-        <p>已有{{ product['comment_count'] }}人评价</p>
+
         <p><input type="button" value="加入购物车"/></p>
     </li>
     {% end %}

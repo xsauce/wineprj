@@ -2,6 +2,49 @@ import MySQLdb
 from DBUtils.PooledDB import PooledDB
 import settings
 
+class MySQLParameterize:
+    @classmethod
+    def to_sql_param(cls, field):
+        return '%(' + field + ')s'
+
+    @classmethod
+    def to_sql_param_list(cls, fields):
+        return ['%(' + x + ')s' for x in fields]
+
+
+class WHERE_CONDITION:
+    @classmethod
+    def EXACT(cls, k, v):
+        return {k: v}, '%s=%s' % (k, MySQLParameterize.to_sql_param(k))
+
+    @classmethod
+    def LIKE(cls, k, v):
+        return {k: v}, "%s like %%%s%%" % MySQLParameterize.to_sql_param(k)
+
+    @classmethod
+    def IN(cls, k, v):
+        d = {}
+        for i, iv in enumerate(v):
+            d['%s#%s' % (k, i)] = iv
+        w_str = '%s in (%s)' % (k, ','.join(MySQLParameterize.to_sql_param_list([k + '#' + str(i) for i in range(len(v))])))
+        return d, w_str
+
+    @classmethod
+    def RANGE(cls, k, v):
+        d = {}
+        d['k#min'] = min(v)
+        d['k#max'] = max(v)
+        return d, 'BETWEEN %s and %s' % (MySQLParameterize.to_sql_param(k + '#min'), MySQLParameterize.to_sql_param(k + '#max'))
+
+    @classmethod
+    def build(cls, where_list):
+        where_str, where_values = [], {}
+        for k, v, sort_func in where_list:
+            w_value, w_str = sort_func(k, v)
+            where_str.append(w_str)
+            where_values.update(w_value)
+        return ' and '.join(where_str), where_values
+
 class ConnectionManager(object):
     def __init__(self):
         self.connections = {}
@@ -54,7 +97,7 @@ class ConnectionManager(object):
     def close(self, db):
         if db in self.connections:
             self.connections[db].close()
-            self.connections[db] = None
+            del self.connections[db]
 
 
 class TransactionContext(object):

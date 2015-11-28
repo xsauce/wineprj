@@ -1,7 +1,101 @@
 import uuid
-
-__author__ = 'sam'
 from CommonModel import *
+__author__ = 'sam'
+
+
+class User(CommonModel):
+    __tablename__ = 'user'
+    uid = None
+    username = None
+    password = None
+    email = None
+    phone = None
+    avatar = None
+    created_at = None
+    updated_at = None
+
+
+class Administrator(CommonModel):
+    __tablename__ = 'administrator'
+    aid = None
+    username = None
+    password = None
+    email = None
+    phone = None
+    created_at = None
+    updated_at = None
+
+
+class Repertory(CommonModel):
+    __tablename__ = 'repertory'
+    rid = None
+    pid = None
+    sale_count = None
+    store_count = None
+    created_at = None
+    updated_at = None
+
+
+class RepertoryEntry(CommonModel):
+    __tablename__ = 'repertory_entry'
+    reid = None
+    pid = None
+    entry_count = None
+    created_at = None
+    updated_at = None
+
+
+class SaleOrder(CommonModel):
+    __tablename__ = 'sale_order'
+    NOPAY = u'未支付'
+    PAID = u'已支付'
+    HANDLING = u'订单处理'
+    DELIVERY = u'商品出库'
+    FINISH = u'订单完成'
+    CANCEL = u'订单缺消'
+    ORDER_STATE_CHOICES = (
+        (NOPAY, 0),
+        (PAID, 1),
+        (HANDLING, 2),
+        (DELIVERY, 3),
+        (FINISH, 4),
+        (CANCEL, 5)
+    )
+
+    soid = None
+    uid = None
+    addr_level1 = None
+    addr_level2 = None
+    addr_level3 = None
+    shipping_cost = None
+    product_sum_price = None
+    product_count = None
+    receiver = None
+    receiver_phone = None
+    receipt_sort = None
+    receipt_content = None
+    receipt_title = None
+    pay_sort = None
+    order_state = None
+    created_at = None
+    updated_at = None
+
+
+class SaleOrderDetail(CommonModel):
+    __tablename__ = 'sale_order_detail'
+    sodid = None
+    soid = None
+    pid = None
+    purchase_count = None
+    price = None
+
+
+class SaleOrderTrace(CommonModel):
+    __tablename__ = 'sale_order_trace'
+    sotid = None
+    soid = None
+    state = None
+    created_at = None
 
 
 class ShipCity(CommonModel):
@@ -9,26 +103,6 @@ class ShipCity(CommonModel):
     city_id = None
     name = None
     district = None
-
-    @classmethod
-    def to_obj(cls, row):
-        c = ShipCity()
-        c.name = row[0]
-        c.district = row[1].split(',')
-        return c
-
-    @classmethod
-    def find_all_cities(cls):
-        sql = 'select name, district from %s' % cls.__tablename__
-        rs = SqlHelper(return_dict=True).query(sql, None)
-        cities = [cls.to_obj(row) for row in rs]
-        return cities
-
-    @classmethod
-    def find_one_city(cls, city_name):
-        sql = 'select name, district from %s where name=?name' % cls.__tablename__
-        rs = SqlHelper(return_dict=True).query_one(sql, {'name': city_name})
-        return cls.to_obj(rs)
 
 
 class Product(CommonModel):

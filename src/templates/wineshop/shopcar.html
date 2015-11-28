@@ -20,14 +20,14 @@
             <tbody>
             {% for product in product_list_in_shopcar %}
             <tr>
-                <input type="hidden" value="{{ product['_id'] }}" name="product_id_list_in_shopcar"/>
+                <input type="hidden" value="{{ product['pid'] }}" name="product_id_list_in_shopcar"/>
                 <td>{{ product['name'] }}</td>
                 <td>{{ product['volume'] }}ml</td>
                 <td>￥{{ product['price'] }}</td>
                 <td><input type="number" value="{{ product['purchase_count'] }}"
-                           name="product-{{ product['_id'] }}-purchase_count"/></td>
-                <td><span id="product-{{ product['_id'] }}-sum">{{ product['price'] * product['purchase_count'] }}</span></td>
-                <td><input type="button" id="product-{{ product['_id'] }}-deletebtn" value="删除" class="btn btn-danger"/></td>
+                           name="product-{{ product['pid'] }}-purchase_count"/></td>
+                <td><span id="product-{{ product['pid'] }}-sum">{{ product['price'] * product['purchase_count'] }}</span></td>
+                <td><input type="button" id="product-{{ product['pid'] }}-deletebtn" value="删除" class="btn btn-danger"/></td>
             </tr>
             {% end %}
             </tbody>

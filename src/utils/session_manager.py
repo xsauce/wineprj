@@ -1,5 +1,5 @@
 import uuid
-from utils.sqlhelper import SqlHelper
+from utils.sqlhelper import SqlHelper, WHERE_CONDITION
 
 __author__ = 'sam'
 import json
@@ -17,7 +17,8 @@ class Session(object):
 
     def _query_session_by_id(self, session_id):
         sqlhelper = SqlHelper()
-        rs = sqlhelper.query('select * from session where sid=?sid', {'sid': session_id})
+        where_value, where_str = WHERE_CONDITION.EXACT('sid', session_id)
+        rs = sqlhelper.query_one('select sid, sval, expiry_time from session where %s' % where_str, where_value)
         if rs:
             return rs
         else:
@@ -29,7 +30,7 @@ class Session(object):
         sqlhelper.execute('''
             insert into session(sid, sval, expiry_time, created_at, updated_at)
             values(%s, %s, %s, NOW(), NOW())
-            on ON DUPLICATE KEY UPDATE s_val=values(sval), expiry_time=values(expiry_time);''' % (session_id, value_str, expiry_time))
+            ON DUPLICATE KEY UPDATE sval=values(sval), expiry_time=values(expiry_time);''', (session_id, value_str, expiry_time))
         sqlhelper.commit()
         sqlhelper.close()
         return session_id
@@ -41,8 +42,7 @@ class Session(object):
                 self.session_value.update({key: value})
                 value_str = json.dumps(self.session_value)
                 if not self.session_id:
-                    result = self._set_session(value_str=value_str, expiry_time=self.expiry_days)
-                    self.session_id = str(result.inserted_id)
+                    self.session_id = self._set_session(value_str=value_str, expiry_time=self.expiry_days)
                 else:
                     result = self._set_session(value_str=value_str, expiry_time=self.expiry_days, session_id=self.session_id)
                     if result.modified_count != 1 and result.matched_count != 1:

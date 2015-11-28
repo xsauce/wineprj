@@ -3,34 +3,20 @@
 {% block title %}喻家山下-{{ product['name'] }}{% end %}
 {% block body %}
 <div class="product_photo_show">
-    {% for img in product['img'] %}
-        <img src="{{ static_url(img['uri'])}}"/>
+    {% for img in product['img_url'] %}
+        <img src="{{ static_url(img)}}"/>
     {% end %}
 </div>
 <div class="product_detail">
     <p>{{ product['name'] }}</p>
     <p>价格: ￥{{ product['price'] }}</p>
-    <p>库存有{{ product['store_count'] }}瓶 预估{{ delivery_days }}天到货</p>
-    <a href="/shopcar/{{ product['_id'] }}" class="btn btn-default">立即购买</a>
+    <p>库存有1瓶 预估{{ delivery_days }}天到货</p>
+    <a href="/shopcar/{{ product['pid'] }}" class="btn btn-default">立即购买</a>
     <a href="">加入购物车</a>
 </div>
 <div class="product_desc">
     {{ product['description'] }}
 </div>
-{% if comments %}
-<div class="product_comment">
-    {% for comment in comments %}
-        <ul>
-            <li>
-                <img src="{{ static_url(user.photo_url) }}"/> {{ comment.user.name }}
-                {{ comment.content }}
-                {{ comment.created_at }}
-            </li>
-        </ul>
-    {% end %}
-</div>
-{% end %}
-
 {% end %}
 {% block footer %}
 {% end %}

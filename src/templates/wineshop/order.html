@@ -144,7 +144,7 @@
             <h3>付款方式</h3>
             {% for pay_sort in pay_sorts %}
             <label class="radio-inline">
-                <input type="radio" name="pay_sort" value="{{ pay_sort['name'] }}" {% if post_data.get('pay_sort','')==pay_sort['name'] %}checked="checked"{% end %}> {{ pay_sort['name'] }}
+                <input type="radio" name="pay_sort" value="{{ pay_sort }}" {% if post_data.get('pay_sort','')==pay_sort %}checked="checked"{% end %}> {{ pay_sort }}
             </label>
             {% end %}
             {% if field_error.get('pay_sort','') %}
@@ -171,16 +171,16 @@
                 <tbody>
                 {% for product in product_list_order %}
                 <tr>
-                    <input type="hidden" value="{{ product['_id'] }}" name="product_id_list_in_order"/>
+                    <input type="hidden" value="{{ product['pid'] }}" name="product_id_list_in_order"/>
                     <td>{{ product['name'] }}</td>
                     <td>{{ product['volume'] }}</td>
                     <td>￥{{ product['price'] }}</td>
                     <td><input type="number" value="{{ product['purchase_count'] }}"
-                               name="product-{{product['_id']}}-purchase_count"/></td>
+                               name="product-{{product['pid']}}-purchase_count"/></td>
                     <td><span
-                            id="product-{{ product['_id'] }}-sum">{{ product['price'] * product['purchase_count'] }}</span>
+                            id="product-{{ product['pid'] }}-sum">{{ product['price'] * product['purchase_count'] }}</span>
                     </td>
-                    <td><input type="button" id="{{ product['_id']}}-deletebtn" value="删除" class="btn btn-danger"/></td>
+                    <td><input type="button" id="{{ product['pid']}}-deletebtn" value="删除" class="btn btn-danger"/></td>
                 </tr>
                 {% end %}
                 </tbody>
