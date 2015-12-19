@@ -37,7 +37,7 @@ LOG_CONF = {
     'level': 'DEBUG'
 }
 
-COOKIE_EXPIRY_DAYS = 0.5
+SESSION_EXPIRY_DAYS = 1
 
 DEBUG = True
 
@@ -51,7 +51,7 @@ APP_SETTINGS = {
     'static_path': os.path.join(ROOT_DIR, 'static'),
     'template_path': os.path.join(ROOT_DIR, 'templates'),
     'compiled_template_cache': (not DEBUG),
-    'cookie_secret': str(uuid.uuid4())
+    'cookie_secret': 'wineprj' if DEBUG else str(uuid.uuid4())
 }
 
 

@@ -1,10 +1,14 @@
-import uuid
+# coding: utf-8
 from CommonModel import *
+from utils.sqlhelper import WHERE_CONDITION
+
 __author__ = 'sam'
 
 
 class User(CommonModel):
     __tablename__ = 'user'
+    __pk__ = 'uid'
+
     uid = None
     username = None
     password = None
@@ -17,6 +21,8 @@ class User(CommonModel):
 
 class Administrator(CommonModel):
     __tablename__ = 'administrator'
+    __pk__ = 'aid'
+
     aid = None
     username = None
     password = None
@@ -28,16 +34,33 @@ class Administrator(CommonModel):
 
 class Repertory(CommonModel):
     __tablename__ = 'repertory'
-    rid = None
+    __pk__ = 'pid'
     pid = None
     sale_count = None
     store_count = None
     created_at = None
     updated_at = None
 
+    @classmethod
+    def sale_product(cls, pid, product_count):
+        sql = 'update %s set sale_count=sale_count+%s, store_count=store_count-%s where pid=%s' % (
+            cls.__tablename__, product_count, product_count, pid
+        )
+        SqlHelper().execute(sql, {})
+
+    @classmethod
+    def sale_product_for_batch(cls, pid_list_with_count):
+        '''
+        pid_list_with_count:data structure: {'pid': 113213, 'product_count':2 }
+        '''
+        sql = 'update ' + cls.__tablename__ + ' set sale_count=sale_count+%(product_count)s, store_count=store_count-%(product_count)s where pid=%(pid)s'
+        SqlHelper().execute_many(sql, pid_list_with_count)
+
 
 class RepertoryEntry(CommonModel):
     __tablename__ = 'repertory_entry'
+    __pk__ = 'reid'
+
     reid = None
     pid = None
     entry_count = None
@@ -47,6 +70,8 @@ class RepertoryEntry(CommonModel):
 
 class SaleOrder(CommonModel):
     __tablename__ = 'sale_order'
+    __pk__ = 'soid'
+
     NOPAY = u'未支付'
     PAID = u'已支付'
     HANDLING = u'订单处理'
@@ -62,6 +87,14 @@ class SaleOrder(CommonModel):
         (CANCEL, 5)
     )
 
+    @classmethod
+    def get_order_state_num(cls, choice):
+        return cls.choice_digitalize(choice, choice_list_name='ORDER_STATE_CHOICES')
+    @classmethod
+    def get_order_state_display(cls, num):
+        return cls.choice_display(num, choice_list_name='ORDER_STATE_CHOICES')
+
+
     soid = None
     uid = None
     addr_level1 = None
@@ -71,7 +104,7 @@ class SaleOrder(CommonModel):
     product_sum_price = None
     product_count = None
     receiver = None
-    receiver_phone = None
+    phone = None
     receipt_sort = None
     receipt_content = None
     receipt_title = None
@@ -83,6 +116,8 @@ class SaleOrder(CommonModel):
 
 class SaleOrderDetail(CommonModel):
     __tablename__ = 'sale_order_detail'
+    __pk__ = 'sodid'
+
     sodid = None
     soid = None
     pid = None
@@ -92,14 +127,18 @@ class SaleOrderDetail(CommonModel):
 
 class SaleOrderTrace(CommonModel):
     __tablename__ = 'sale_order_trace'
+    __pk__ = 'sotid'
+
     sotid = None
     soid = None
     state = None
     created_at = None
-
+    updated_at = None
 
 class ShipCity(CommonModel):
     __tablename__ = 'ship_city'
+    __pk__ = 'city_id'
+
     city_id = None
     name = None
     district = None
@@ -107,6 +146,8 @@ class ShipCity(CommonModel):
 
 class Product(CommonModel):
     __tablename__ = 'product'
+    __pk__ = 'pid'
+
     pid = None
     name = None
     img_url = None
@@ -124,40 +165,30 @@ class Product(CommonModel):
     created_at = None
     updated_at = None
 
-    @classmethod
-    def insert_one_product(cls, product):
-        product.pid = str(uuid.uuid4())
-        insert_fields = product.keys()
-        insert_params = cls.to_sql_params(insert_fields)
-        sql = 'insert into %s(%s,created_at, updated_at) values(%s,NOW(),NOW())' %(cls.__tablename__, ','.join(insert_fields), ','.join(insert_params))
-        SqlHelper().execute(sql, product.__dict__)
-        return product.pid
-
-    @classmethod
-    def insert_many_product(cls, products):
-        pid_list = []
-        for p in products:
-            p['pid'] = str(uuid.uuid4())
-            pid_list.append(p['pid'])
-        insert_fields = products[0].keys()
-        insert_params = cls.to_sql_param_list(insert_fields)
-        sql = 'insert into %s(%s,created_at, updated_at) values(%s,NOW(),NOW())' %(cls.__tablename__, ','.join(insert_fields), ','.join(insert_params))
-        SqlHelper().execute_many(sql, [p for p in products])
-        return pid_list
-
 
 class Poster(CommonModel):
     __tablename__ = 'poster'
+    __pk__ = 'poster_id'
+
     poster_id = None
     description = None
     show_place = None
     seq = None
 
-    @classmethod
-    def find_by_place(cls, place):
-        rs = cls.find(select_fields=cls.all_field(), sql_value={'show_place': place}, where_str='show_place=?show_place', return_obj=True)
-        return rs
 
+class PaySort(CommonModel):
+    ALIPAY = u'支付宝'
+    COD = u'货到付款'
+    SORT_CHOICE = (
+        (ALIPAY, 1),
+        (COD, 2)
+    )
+    @classmethod
+    def get_sort_num(cls, choice):
+        return cls.choice_digitalize(choice, choice_list_name='SORT_CHOICE')
+    @classmethod
+    def get_sort_display(cls, num):
+        return cls.choice_display(num, choice_list_name='SORT_CHOICE')
 
 
 

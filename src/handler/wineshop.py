@@ -2,6 +2,7 @@
 import re
 import traceback
 from handler.CommonHandler import WineShopCommonHandler
+from handler.tools import VALCODE_NAME
 from logiclayer.wineshop import *
 from utils.exceptions import OrderIsEmpty, SessionOverTime
 from utils.image_tool import get_thumbnail_uri
@@ -20,7 +21,7 @@ def _show_product_list_with_count(pid_with_count):
 
 class HomeHandler(WineShopCommonHandler):
     def get(self):
-        poster_list = PosterLL.get_home_posts('home')
+        poster_list = PosterLL.get_poster_by_place('home')
         self.page_render('wineshop/home.html', poster_list=poster_list)
 
 
@@ -71,11 +72,15 @@ class ProductDetailHandler(WineShopCommonHandler):
 
 class ShopCarHandler(WineShopCommonHandler):
     def get(self, product_id):
-        shopcar = self.get_cookie('shopcar', [])
+        shopcar = self._get_shopcar_cookie()
         shopcar_dict = dict()
         for p in shopcar:
             p_split = p.split(':')
-            shopcar_dict[p_split[0]] = int(p_split[1])
+            pid = p_split[0]
+            if len(p_split) == 2:
+                shopcar_dict[pid] = shopcar_dict.setdefault(pid, 0) + int(p_split[1])
+            else:
+                shopcar_dict[pid] = shopcar_dict.setdefault(pid, 0) + 1
         if product_id:
             shopcar_dict[product_id] = shopcar_dict.setdefault(product_id, 0) + 1
         product_list_in_shopcar, product_count_in_shopcar, product_sum_price_in_shopcar = _show_product_list_with_count(shopcar_dict)
@@ -158,10 +163,10 @@ class SubmitOrderHandlder(WineShopCommonHandler):
         if not re.match('\d{11}', post_data['phone']):
             field_error['phone'] = u'请填写正确的手机号'
 
-        valcode = self.session.get_item('valcode', '').upper()
-        if valcode != '':
+        valcode = self.session.get_item(VALCODE_NAME, '').upper()
+        if valcode == '':
             raise SessionOverTime()
-        if valcode == post_data['valcode'].upper():
+        if valcode != post_data['valcode'].upper():
             field_error['valcode'] = u'验证码错误'
 
         if post_data['need_receipt']:
@@ -203,9 +208,115 @@ class SubmitOrderHandlder(WineShopCommonHandler):
                              field_error=field_error,
                              post_data=post_data)
         else:
-            pass
-            #insert order, state:new
-            #update store count, sale count
+            order_detail = []
+            for p in product_list_order:
+                sod = SaleOrderDetail()
+                sod.pid = p['pid']
+                sod.purchase_count = int(post_data['order'][sod.pid])
+                sod.price = p['price']
+                order_detail.append(sod)
+            order = SaleOrder(post_data)
+            order.shipping_cost = 5
+            SaleOrderLL.add_one_order(order, order_detail)
+            if order.pay_sort == PaySort.ALIPAY:
+                pass
+            elif order.pay_sort == PaySort.COD:
+                self.page_render('wineshop/tip.html', tip=u'订单提交成功!')
+
+class LoginUserForm(object):
+    login_key = None
+    password = None
+    vcode = None
+
+    def __init__(self, post_dict):
+        for k, v in post_dict.items():
+            try:
+                if len(v) == 1:
+                    setattr(self, k, v[0])
+                else:
+                    setattr(self, k, v)
+            except:
+                pass
+    def valid(self, handler):
+        errors = {}
+        user = UserLL.valid_user(self.login_key, self.password)
+        if UserLL.LLERROR:
+            errors['all'] = UserLL.LLERROR
+        valcode = handler.session.get_item(VALCODE_NAME, '').upper()
+        if valcode == '':
+            raise SessionOverTime()
+        if valcode != self.vcode.upper():
+            errors['vcode'] = u'验证码错误'
+        return errors, user
+
+class RegisterUserForm(object):
+    email = None
+    password = None
+    repeat_password = None
+    username = None
+    vcode = None
+    username = None
+
+    def __init__(self, post_dict):
+        for k, v in post_dict.items():
+            try:
+                if len(v) == 1:
+                    setattr(self, k, v[0])
+                else:
+                    setattr(self, k, v)
+            except:
+                pass
+
+    def valid(self, handler):
+        errors = {}
+        email_match = re.match('^\w+(\.\w+)*@(\w)+(\.\w+)+$', self.email)
+        if not email_match:
+            errors['email'] = u'填写正确的邮箱'
+        if not self.password:
+            errors['password'] = u'请填写密码'
+        elif self.password != self.password:
+            errors['repeat_password'] = u'两次填写的密码不一致'
+        if not self.username:
+            errors['username'] = u'请填写用户名'
+        valcode = handler.session.get_item(VALCODE_NAME, '').upper()
+        if valcode == '':
+            raise SessionOverTime()
+        if valcode !=self.vcode.upper():
+            errors['vcode'] = u'验证码错误'
+        return errors
+
+class LoginUserHandler(WineShopCommonHandler):
+
+    def get(self):
+        self.page_render('wineshop/login.html', errors={}, post_data={})
+    def post(self):
+        login_form = LoginUserForm(self.request.body_arguments)
+        errors, user = login_form.valid(self)
+        if errors:
+            self.page_render('wineshop/login.html', errors=errors, post_data=login_form.__dict__)
+        else:
+            self.session.set_item('user', tojsonstr(user.__dict__))
+            self.page_render('wineshop/tip.html', tip='登陆成功')
+
+
+class RegisterUserHandler(WineShopCommonHandler):
+    def get(self):
+        self.page_render('wineshop/register.html', errors={}, post_data={})
+
+    def post(self):
+        register_form = RegisterUserForm(self.request.body_arguments)
+        errors = register_form.valid(self)
+        if errors:
+            self.page_render('wineshop/register.html', errors=errors, post_data=register_form.__dict__)
+        else:
+            user = User(register_form.__dict__)
+            UserLL.add_one_uesr(user)
+            if UserLL.LLERROR == '':
+                self.page_render('wineshop/tip.html', tip=u'注册成功')
+            else:
+                errors['all'] = UserLL.LLERROR
+                self.page_render('wineshop/register.html', errors=errors, post_data=register_form.__dict__)
+
 
 
 

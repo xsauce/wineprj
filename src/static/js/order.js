@@ -30,6 +30,3 @@ $(document).ready(function () {
         }
     });
 });
-function refresh_code(img) {
-    $(img).attr('src', '/verify_code?r=' + Math.random())
-}

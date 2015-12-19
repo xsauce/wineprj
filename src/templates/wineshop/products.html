@@ -1,64 +1,80 @@
 {% extends 'base.html' %}
 {% block header %}{% end %}
 {% block title %}喻家山下-葡萄酒名录{% end %}
+<link href="{{static_url('css/products.css')}}" type="text/css"/>
 {% block body %}
-<div class="query_condition">
-    <!--<p id="brands">品牌-->
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-9">
+            <div class="jumbotron">
+                <h1>Classic Recommand</h1>
 
-    <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="&brand="></a>-->
+                <p>This is an example to show the potential of an offcanvas layout pattern in Bootstrap. Try some
+                    responsive-range viewport sizes to see it in action.</p>
+            </div>
+            {% for product in product_list %}
+            <div class="row">
+                <div class="col-xs-6 col-sm-2">
+                    <a href="/product_detail/{{ product['pid'] }}"><img src="{{ static_url(product['fimg'])}}"
+                                                                        alt="{{ product['name'] }}"/></a>
+                </div>
+                <div class="col-xs-6 col-sm-6">
+                    <a href="/product_detail/{{ product['pid'] }}">{{ product['name']}}</a>
 
-    <!--</p>-->
+                    <p>{{ product['description'] }}</p>
 
-    <!--<p id="countries">国家-->
+                    <p>Price: {{ product['price'] }}</p>
+                </div>
+                <div class="col-xs-2 col-sm-4">
+                    <p>
+                        <input type="button" value="buy" data-pid="{{ product['pid'] }}"
+                               class="btn btn-warning buy-btn"/>
+                       </p>
+                    <p>
+                        <input type="button" value="add in" data-pid="{{ product['pid'] }}"
+                               class="btn btn-success shopcar-btn"/>
+                    </p>
+                </div>
+            </div>
+            {% end %}
+        </div>
+        <div class="col-xs-12 col-sm-3" id="sidebar">
+            <div class="list-group">
+                <a href="/products" class="list-group-item active">ALL</a>
+                {% for sort in grape_sort %}
+                <a href="/products?grape_sort={{sort}}" class="list-group-item">{{ sort }}</a>
+                {% end %}
+            </div>
+        </div>
+    </div>
 
-    <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:void(0);"></a>-->
-
-    <!--</p>-->
-
-    <!--<p id="areas">产区-->
-
-    <!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:void(0);"></a>-->
-
-
-    <!--</p>-->
-    {% if grape_sort %}
-    <p id="grape_sorts">
-        葡萄品种:
-        {% for sort in grape_sort %}
-        &nbsp;&nbsp;|&nbsp;&nbsp;<a href="/products?grape_sort={{sort}}">{{ sort }}</a>
-        {% end %}
-    </p>
-    {% end %}
-
-    <!--<p id="scenes">适用场景-->
-
-    <!--</p>-->
-    <!--<p id="wine_levels">等级-->
-
-    <!--</p>-->
-
-    <!--<p id="price_ranges">价格-->
-
-    <!--</p>-->
+    <!--/row-->
 </div>
-<ul>
-    {% for product in product_list %}
-    <li>
-        <p>
-            <a href="/product_detail/{{ product['pid'] }}">
-                <img src="{{ static_url(product['fimg'])}}" alt="{{ product['name'] }}"/>
-                {{ product['name']}}</a>
-            {{ product['description'] }}]
-        </p>
+<!--/.col-xs-12.col-sm-9-->
 
-        <p>￥{{ product['price'] }}</p>
-
-        <p><input type="button" value="加入购物车"/></p>
-    </li>
-    {% end %}
-</ul>
-<div class="paginator">
+<!--/.sidebar-offcanvas-->
+</div>
+<!--/row-->
+</div>
+<div class="modal fade" id="shopcar_tip_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">提示</h4>
+            </div>
+            <div class="modal-body">
+                <p>该商品已经加入了您的购物车</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">继续购物</button>
+                <button type="button" class="btn btn-primary">下单结算</button>
+            </div>
+        </div>
+    </div>
 </div>
 {% end %}
 {% block footer %}
+<script type="text/javascript" src="{{static_url('js/products.js')}}"></script>
 {% end %}

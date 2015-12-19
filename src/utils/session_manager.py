@@ -4,12 +4,11 @@ from utils.sqlhelper import SqlHelper, WHERE_CONDITION
 __author__ = 'sam'
 import json
 import traceback
-from settings import COOKIE_EXPIRY_DAYS
 
 SESSION_SAVE_INTO_DB = 1
 
 class Session(object):
-    def __init__(self, session_id=None, expiry_days=COOKIE_EXPIRY_DAYS, save_location=SESSION_SAVE_INTO_DB):
+    def __init__(self, session_id=None, expiry_days=0, save_location=SESSION_SAVE_INTO_DB):
         self.save_location = save_location
         self.session_id = session_id
         self.session_value = {}
@@ -44,9 +43,7 @@ class Session(object):
                 if not self.session_id:
                     self.session_id = self._set_session(value_str=value_str, expiry_time=self.expiry_days)
                 else:
-                    result = self._set_session(value_str=value_str, expiry_time=self.expiry_days, session_id=self.session_id)
-                    if result.modified_count != 1 and result.matched_count != 1:
-                        raise Exception('fail to update session, modified_count:%s, matched_count:%s', (result.modified_count, result.matched_count))
+                    self._set_session(value_str=value_str, expiry_time=self.expiry_days, session_id=self.session_id)
             else:
                 raise Exception('incorrect session save location')
         except Exception, e:
@@ -71,5 +68,4 @@ class Session(object):
                 raise Exception('incorrect session save location')
         else:
             self.session_value = {}
-            self.expiry_days = COOKIE_EXPIRY_DAYS
 

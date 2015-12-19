@@ -66,7 +66,7 @@ class WebManager(object):
                     }
                 )
             Product.delete({})
-            Product.insert_many_product(products)
+            Product.insert_many_with_created_updated_at_return_pk('pid', products)
             print 'product insert 100 record'
             ShipCity.delete({})
             cities = [
