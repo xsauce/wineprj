@@ -1,53 +1,43 @@
 {% extends 'base.html' %}
 {% block header %}{% end %}
 {% block title %}喻家山下-葡萄酒名录{% end %}
-<link href="{{static_url('css/products.css')}}" type="text/css"/>
 {% block body %}
 <div class="container">
     <div class="row">
-        <div class="col-xs-12 col-sm-9">
-            <div class="jumbotron">
-                <h1>Classic Recommand</h1>
-
-                <p>This is an example to show the potential of an offcanvas layout pattern in Bootstrap. Try some
-                    responsive-range viewport sizes to see it in action.</p>
-            </div>
-            {% for product in product_list %}
-            <div class="row">
-                <div class="col-xs-6 col-sm-2">
-                    <a href="/product_detail/{{ product['pid'] }}"><img src="{{ static_url(product['fimg'])}}"
-                                                                        alt="{{ product['name'] }}"/></a>
-                </div>
-                <div class="col-xs-6 col-sm-6">
-                    <a href="/product_detail/{{ product['pid'] }}">{{ product['name']}}</a>
-
+        <div class="col-sm-6 col-md-2">
+        <div class="list-group" id="filter_list">
+            <a href="/products" class="list-group-item active" data-item="">ALL GRAPE SORT</a>
+            {% for g in grape_sort %}
+            <a href="?grape_sort={{ g }}" class="list-group-item" data-item="{{ g }}">{{ g }}</a>
+            {% end %}
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-10">
+        <div class="jumbotron">
+            <h1>Hello, world!</h1>
+            <p>This is an example to show the potential of an offcanvas layout pattern in Bootstrap. Try some responsive-range viewport sizes to see it in action.</p>
+        </div>
+        </div>
+    </div>
+    <div class="row">
+        {% for product in product_list %}
+        <div class="col-sm-6 col-md-3">
+            <div class="thumbnail">
+                <a href="/product_detail/{{ product['pid'] }}"><img src="{{ static_url(product['fimg'])}}"
+                                                                    alt="{{ product['name'] }}" width="300" height="300"/></a>
+                <div class="caption">
+                    <h3><a href="/product_detail/{{ product['pid'] }}">{{ product['name']}}</a></h3>
                     <p>{{ product['description'] }}</p>
-
-                    <p>Price: {{ product['price'] }}</p>
-                </div>
-                <div class="col-xs-2 col-sm-4">
                     <p>
-                        <input type="button" value="buy" data-pid="{{ product['pid'] }}"
-                               class="btn btn-warning buy-btn"/>
-                       </p>
-                    <p>
-                        <input type="button" value="add in" data-pid="{{ product['pid'] }}"
+                        <input type="button" value="BUY" data-pid="{{ product['pid'] }}" class="btn buy-btn"/>
+                        <input type="button" value="ADDIN" data-pid="{{ product['pid'] }}"
                                class="btn btn-success shopcar-btn"/>
                     </p>
                 </div>
             </div>
-            {% end %}
         </div>
-        <div class="col-xs-12 col-sm-3" id="sidebar">
-            <div class="list-group">
-                <a href="/products" class="list-group-item active">ALL</a>
-                {% for sort in grape_sort %}
-                <a href="/products?grape_sort={{sort}}" class="list-group-item">{{ sort }}</a>
-                {% end %}
-            </div>
-        </div>
+        {% end %}
     </div>
-
     <!--/row-->
 </div>
 <!--/.col-xs-12.col-sm-9-->

@@ -34,13 +34,17 @@ class WebManager(object):
             import subprocess
             subprocess.call('sudo mkdir %s && sudo chown %s %s' % (log_dir, user, log_dir), shell=True)
 
-    def start_webapp(self, port):
+    def startwebapp(self, port):
         app = webapp()
         app.listen(port)
         IOLoop.current().start()
 
     def product_thumbnail(self):
-        batch_create_thumbnail([(500, 500), (100, 100)])
+        batch_create_thumbnail((50, 50))
+
+    def photo_normalized(self):
+        batch_normalized_photo((300, 300), filter_name=r'\d+')
+        batch_normalized_photo((1024, 512), filter_name=r'post\d')
 
     def init_test_db(self):
         with TransactionContext(settings.CURRENT_DB):
@@ -76,7 +80,6 @@ class WebManager(object):
             ShipCity.insert_many(cities)
             print 'ship city insert 2'
             Poster.delete({})
-            # batch_normalized_photo([(1024, 512)], filter_name=r'post\d')
             posters = [
                 {'poster_id': 'post1.jpg', 'description': u'海报1', 'show_place':'home', 'seq': 1},
                 {'poster_id': 'post2.jpg', 'description': u'海报2', 'show_place':'home', 'seq': 2},
@@ -93,6 +96,7 @@ if __name__ == '__main__':
     parser.add_argument('-testdb', help='init test db', action='store_true')
     parser.add_argument('-build_envir', help='build running environment,please input your current user name', type=str)
     parser.add_argument('-product_thumbnail', action='store_true')
+    parser.add_argument('-photo_normalized', action='store_true')
     parser.add_argument('-shell', action='store_true')
     args = parser.parse_args(sys.argv[1:])
     manager = WebManager()
@@ -102,11 +106,14 @@ if __name__ == '__main__':
     if args.product_thumbnail:
         manager.product_thumbnail()
         exit(0)
+    if args.photo_normalized:
+        manager.photo_normalized()
+        exit(0)
     if args.build_envir:
         manager.build_envir(args.build_envir)
     if args.startwebapp:
         print 'web application is running...'
-        manager.start_webapp(args.startwebapp)
+        manager.startwebapp(args.startwebapp)
         exit(0)
     if args.shell:
         manager.shell()

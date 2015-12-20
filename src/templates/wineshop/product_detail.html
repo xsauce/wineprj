@@ -1,22 +1,95 @@
 {% extends 'base.html' %}
-{% block header %}{% end %}
+{% block header %}
+<link rel="stylesheet" href="{{ static_url('css/product_detail.css')}}"/>
+{% end %}
 {% block title %}喻家山下-{{ product['name'] }}{% end %}
 {% block body %}
-<div class="product_photo_show">
-    {% for img in product['img_url'] %}
-        <img src="{{ static_url(img)}}"/>
-    {% end %}
-</div>
-<div class="product_detail">
-    <p>{{ product['name'] }}</p>
-    <p>价格: ￥{{ product['price'] }}</p>
-    <p>库存有1瓶 预估{{ delivery_days }}天到货</p>
-    <a href="/shopcar/{{ product['pid'] }}" class="btn btn-default">立即购买</a>
-    <a href="">加入购物车</a>
-</div>
-<div class="product_desc">
-    {{ product['description'] }}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 col-md-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="photo-carousel" class="carousel slide" data-ride="carousel">
+                        <!-- Wrapper for slides -->
+                        <div class="carousel-inner" role="listbox">
+                            {% set first = True %}
+                            {% for index, img in enumerate(product['img_url']) %}
+                            <div class="item {% if first %}{% set first=False %}active{% end %}"
+                                 data-slide-number="{{ index }}">
+                                <img src="{{ static_url(img)}}" class="img-responsive"/>
+                            </div>
+                            {% end %}
+                        </div>
+                        <!-- Controls -->
+                        <a class="left carousel-control" href="#photo-carousel" role="button" data-slide="prev">
+                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="right carousel-control" href="#photo-carousel" role="button" data-slide="next">
+                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 hidden-sm hidden-xs" id="indices">
+                <ul class="list-inline">
+                    {% set first = True %}
+                    {% for index, img in enumerate(product['img_url']) %}
+                    <li id="photo-selector-{{ index }}" {% if first %}{% set first=False %}class="selected" {% end %}>
+                        <img src="{{ static_url(get_thumbnail_uri(img)) }}" alt="" class="img-responsive img-thumbnail">
+                    </li>
+                    {% end %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-8">
+            <div class="product_info">
+                <h3>{{ product['name'] }}</h3>
+
+                <div class="well well-sm">
+                    <p>价格: ￥{{ product['price'] }}</p>
+
+                    <p>库存有1瓶 预估{{ delivery_days }}天到货</p>
+                </div>
+                <p>
+                    <a href="/shopcar/{{ product['pid'] }}" class="btn btn-danger">立即购买</a>
+                    <a href="" class="btn btn-primary shopcar-btn">加入购物车</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="product_detail">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#description" aria-controls="#description" role="tab" data-toggle="tab">Description</a>
+            </li>
+            <li role="presentation"><a href="#chateau" aria-controls="#chateau" role="tab" data-toggle="tab">Chateau</a></li>
+            <li role="presentation"><a href="#reviews" aria-controls="#reviews" role="tab" data-toggle="tab">Reviews&nbsp;<span
+                    class="badge">10</span></a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="description" role="tabpanel" class="tab-pane active">
+                <div class="text-wrapper">
+                    {{ product['description'] }}
+                </div>
+            </div>
+            <div id="chateau" role="tabpanel" class="tab-pane">
+                <div class="text-wrapper">
+                    Chateau Introduce
+                </div>
+            </div>
+            <div id="reviews" role="tabpanel" class="tab-pane">
+                <div class="text-wrapper">
+                    User1: I Like it
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% end %}
 {% block footer %}
+<script type="text/javascript" src="{{ static_url('js/product_detail.js')}}"></script>
 {% end %}

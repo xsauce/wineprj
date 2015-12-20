@@ -48,7 +48,7 @@ class ProductsHandler(WineShopCommonHandler):
         product_list = []
         for product in product_result:
             if product['img_url']:
-                product['fimg'] = get_thumbnail_uri(product['img_url'][0])
+                product['fimg'] = product['img_url'][0]
             product_list.append(product)
         self.page_render('wineshop/products.html', product_list=product_list, grape_sort=grape_sort)
 
@@ -64,7 +64,11 @@ class ProductDetailHandler(WineShopCommonHandler):
             # comments = db.comment.find({'product_id': prodcut_id})
             comments = None
             delivery_days = 1
-            self.page_render('wineshop/product_detail.html', product=product, comments=comments, delivery_days=delivery_days)
+            self.page_render('wineshop/product_detail.html',
+                             get_thumbnail_uri=get_thumbnail_uri,
+                             product=product,
+                             comments=comments,
+                             delivery_days=delivery_days)
         else:
             errmsg = 'invalid parameter in ProductDetailHandler'
             raise Exception(errmsg)

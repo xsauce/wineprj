@@ -1,0 +1,16 @@
+#indices{
+    margin-top: 10px;
+}
+#indices img{
+    cursor: pointer;
+}
+.selected{
+    padding-bottom: 5px;
+    border-bottom:3px solid red;
+}
+#product_detail{
+    margin-top: 20px;
+}
+.text-wrapper{
+    padding:20px;
+}
