@@ -37,9 +37,12 @@ LOG_CONF = {
     'level': 'DEBUG'
 }
 
+LOCALE_DIR = os.path.join(ROOT_DIR, 'locale')
+
 SESSION_EXPIRY_DAYS = 1
 
 DEBUG = True
+
 
 
 

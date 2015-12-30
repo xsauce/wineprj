@@ -109,38 +109,42 @@ class ReceiptLL(object):
     def get_all_content(cls):
         return RECEIPT_CONTENT
 
+
 class UserLL(object):
     LLERROR = ''
+
     @classmethod
     def md5_password(cls, password):
         md5 = hashlib.md5()
         md5.update(password)
         return md5.hexdigest()
+
     @classmethod
-    def valid_user(cls, login_key, password):
+    def valid_user(cls, login_key, password, locale_func):
         cls.LLERROR = ''
         email_value, email_str = WHERE_CONDITION.EXACT('email', login_key)
         username_value, username_str = WHERE_CONDITION.EXACT('username', login_key)
         sql_value = {}
         sql_value.update(email_value)
         sql_value.update(username_value)
-        user = User.find_one(['uid', 'username', 'password'],sql_value, email_str + ' or ' + username_str)
+        user = User.find_one(['uid', 'username', 'password'], sql_value, email_str + ' or ' + username_str)
         if user:
             if user.password == cls.md5_password(password):
                 user.password = None
                 return user
             else:
-                UserLL.LLERROR = u'密码错误'
+                UserLL.LLERROR = locale_func('wrong_password')
         else:
-            cls.LLERROR = u'不存在该用户名或邮箱,请前往注册'
+            cls.LLERROR = locale_func('no_exist_email_or_user_name')
             return None
+
     @classmethod
-    def add_one_uesr(cls, user):
+    def add_one_uesr(cls, user, locale_func):
         cls.LLERROR = ''
         where_value, where_str = WHERE_CONDITION.EXACT('email', user.email)
         rs = User.find_one(['uid'], where_value, where_str)
         if rs:
-            cls.LLERROR = u'该邮箱已被注册'
+            cls.LLERROR = locale_func('email_is_registered')
             return
         user.password = cls.md5_password(user.password)
         with TransactionContext():

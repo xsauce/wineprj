@@ -17,3 +17,10 @@ body {
 .error{
     color:red;
 }
+.product-count{
+    width:80px;
+    text-align: center;
+}
+.font-bold{
+    font-weight: bold;
+}

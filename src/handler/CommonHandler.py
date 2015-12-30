@@ -1,4 +1,5 @@
 # coding: utf-8
+from functools import partial
 import json
 import urllib
 from tornado.web import RequestHandler
@@ -10,9 +11,9 @@ COOKIE_SESSION_NAME = 'session_id'
 
 class CommonHandler(RequestHandler):
     def __init__(self, *args, **kwargs):
+        super(CommonHandler, self).__init__(*args, **kwargs)
         self.logger = get_logger('wineshop')
         self._session = None
-        super(CommonHandler, self).__init__(*args, **kwargs)
 
     def get_current_user(self):
         return self.session.get_item('user')
@@ -32,11 +33,16 @@ class CommonHandler(RequestHandler):
 
 
 class WineShopCommonHandler(CommonHandler):
-    def _get_errmsg(status_code):
+    def __init__(self, *args, **kwargs):
+        super(WineShopCommonHandler, self).__init__(*args, **kwargs)
+        self._ul = self.get_browser_locale().translate
+
+    def _get_errmsg(self, status_code):
         if status_code == '404':
-            return u'您访问的页面没有找到'
+            return self._ul('page_not_found')
         elif status_code == '500':
-            return u'系统正忙，稍后重试'
+            return self._ul('try_again')
+
     def _get_shopcar_cookie(self):
         shopcar = self.get_cookie('shopcar', None)
         if shopcar:
@@ -62,4 +68,5 @@ class WineShopCommonHandler(CommonHandler):
         else:
             user = {}
         kwargs.update({'username': user.get('username', '')})
+        kwargs.update({'_ul': self._ul})
         self.render(template, **kwargs)

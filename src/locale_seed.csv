@@ -1,0 +1,97 @@
+key,en_US,zh_CN
+home,Home,首页
+products,Products,葡萄酒列表
+chateaus,Chateaus,酒庄列表
+login,Login,登录
+register,Register,注册
+mylists,MyLists,我的订单
+back_to_top,Back to top,回到上面
+cart,Cart,购物车
+all,ALL,全部
+selah,Selah,西拉
+miller,Miller,美乐
+sauvignon_blanc,Sauvignon Blanc,长相思
+cabernet_sauvignon ,Cabernet Sauvignon,赤霞珠
+macabeo,Macabeo,马卡贝奥
+click_to_refresh,Click To Refresh,"如看不清,点击图片刷新"
+submit,Submit,提交
+your_email_or_username,Your email or user name,填写您的邮箱或用户名
+email_or_username,Email or User Name,邮箱或用户名
+password,Password,密码
+valcode,ValidCode,验证码
+first_register,First Register,还不是会员，先注册
+wrong_password,Wrong Password,密码错误
+no_exist_email_or_user_name,No Exists Email or User Name,"不存在该用户名或邮箱,请先注册"
+wrong_valcode,Wrong ValidCode,验证码错误
+email_style_not_correct,Email Style is not correct,填写正确的邮箱
+empty_password,Empty Password,请填写密码
+passwords_type_twice_not_match,Password Type Twice do not Match,两次填写的密码不一致
+empty_user_name,Empty User Name,请填写用户名
+login_successfully,Login Successfully,登录成功
+register_successfully,Register Successfully,注册成功
+email_is_registered,Email is registered,该邮箱已被注册
+return_cart,Return Cart,返回购物车
+submit_order,Submit Order,填写订单
+delivery_info,Delivery Info,收货信息
+address,Address,送货地址
+please_choose,Please Choose,请选择
+receiver,Receiver,收货人
+phone,Phone,手机号
+write_receipt,Write Receipt,开发票
+person_receipt,Person Receipt,个人发票
+company_receipt,Company Receipt,公司发票
+choose_receipt_content,Choose Receipt Content,选择发票内容
+receipt_title,Receipt Title,请填写发票抬头
+pay_sort,Pay Sort,付款方式
+my_order,My Order,我的订单
+product,Product,商品
+attr,Attribute,属性
+price,Price,单价
+count,Count,数量
+subtotal,Subtotal,小计
+currency_unit,$,￥
+delete,Delete,删除
+total,Total,共
+piece,Piece,件
+product_total_price,Product Total Price,商品金额
+delivery_cost,Delivery Cost,运费
+total_price,Total Price,总计金额
+my_cart,My Cart,我的购物车
+continue_shopping,Continue Shopping,继续购物
+confirm_order,Confirm Order,下单结算
+confirm_password,Confirm Password,再输入一遍密码
+repeat_password,Repeat Password,重复密码
+user_name,User Name,用户名
+email,Email,邮箱
+tip,Tip,提示
+buy,BUY,立即购买
+add_in,ADD IN,加入购物车
+product_added_into_cart,The product is added into cart,该商品已经加入了您的购物车
+purchase_count,Purchase Count,购买数量
+store,Store,库存
+has,Has,有
+bottle,Bottle,瓶
+description,Description,产品描述
+chateau,Chateau,酒庄介绍
+review,Review,评价
+brand,Brand,品牌
+country,Country,国家
+area,Area,产区
+grape_sort,Grape Sort,葡萄酒品种
+scene,Scene,适合场景
+sort,Sort,种类
+wine_level,Wine Level,等级
+volume,Volume,容量
+page_not_found,Page Not Found,您访问的页面没有找到
+try_again,Try Again,系统正忙，稍后重试
+incorrect_city,Incorrect City,请选择正确的直辖市或省份
+incorrect_district,Incorrect District,请选择正确的城市或区
+empty_address_detail,Empty Address Detail,请填写详细地址
+incorrect_pay_sort,Incorrect Pay Sort,请选择正确的支付方式
+incorrect_name,Incorrect Name,请填写正确的名字
+incorrect_phone,Incorrect Phone,请填写正确的手机号
+incorrect_receipt_sort,Incorrect Receipt Sort,请选择正确的发票类型
+incorrect_receipt_content,Incorrect Receipt Content,请选择正确的发票内容
+empty_receipt_title,Empty Receipt Title,请填写发票抬头
+incorrect_purchase_count,Incorrect Purchase Count,请填写正确的购买数量
+submit_order_successfully,Submit Order Successfully,订单提交成功

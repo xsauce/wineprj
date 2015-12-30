@@ -1,38 +1,49 @@
 {% extends 'base.html' %}
 {% block header %}{% end %}
-{% block title %}注册-喻家山下{% end %}
+{% block title %}{{ _ul('register') }}-喻家山下{% end %}
 {% block body %}
-<h3>注册</h3>
-<form action="/register" method="post">
-    <div class="form-group {% if errors.get('email', '') %} has-error {% end %}">
-        <label for="email" class="control-label">{{ errors.get('email', u'邮箱') }}</label>
-        <input type="email" value="{{ post_data.get('email', '')}}" class="form-control" id="email" placeholder="填写您的邮箱" name="email"/>
-    </div>
-    <div class="form-group {% if errors.get('password', '') %} has-error {% end %}">
-        <label for="password" class="control-label">{{ errors.get('password', u'密码') }}</label>
-        <input type="password" class="form-control" id="password" placeholder="填写您的密码" name="password"/>
-    </div>
-    <div class="form-group {% if errors.get('repeat_password', '') %} has-error {% end %}" id="repeat_password_group">
-        <label for="repeat_password" class="control-label">{{ errors.get('repeat_password', u'重复密码') }}</label>
-        <input type="password" class="form-control" id="repeat_password" name="repeat_password" placeholder="重复您的密码"/>
-    </div>
-    <div class="form-group {% if errors.get('username', '') %} has-error {% end %}">
-        <label for="username" class="control-label">{{errors.get('username', u'用户名')}}</label>
-        <input type="text" id="username" class="form-control" name="username" placeholder="填写您的用户名" value="{{ post_data.get('username', '')}}"/>
-    </div>
-    <div class="form-group {% if errors.get('vcode', '') %} has-error {% end %}">
-        <label for="vcode" class="control-label">{{errors.get('vcode', u'验证码')}}</label>
-        <input type="text" id="vcode" name="vcode" class="form-control"/>
-        <img src="/verify_code" alt="点我刷新" onclick="javascript:refresh_code(this);" class="verify_code"/> 如看不清,点击图片刷新
-    </div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6">
+            <h3>{{ _ul('register') }}</h3>
+            <form action="/register" method="post">
+                <div class="form-group {% if errors.get('email', '') %} has-error {% end %}">
+                    <label for="email" class="control-label">{{ errors.get('email', _ul('email')) }}</label>
+                    <input type="email" value="{{ post_data.get('email', '')}}" class="form-control" id="email"
+                           placeholder="{{ _ul('email') }}" name="email"/>
+                </div>
+                <div class="form-group {% if errors.get('password', '') %} has-error {% end %}">
+                    <label for="password" class="control-label">{{ errors.get('password', _ul('password')) }}</label>
+                    <input type="password" class="form-control" id="password" placeholder="{{ _ul('password') }}" name="password"/>
+                </div>
+                <div class="form-group {% if errors.get('repeat_password', '') %} has-error {% end %}"
+                     id="repeat_password_group">
+                    <label for="repeat_password" class="control-label">{{ errors.get('repeat_password', _ul('repeat_password'))}}</label>
+                    <input type="password" class="form-control" id="repeat_password" name="repeat_password"
+                           placeholder="{{ _ul('confirm_password') }}"/>
+                </div>
+                <div class="form-group {% if errors.get('username', '') %} has-error {% end %}">
+                    <label for="username" class="control-label">{{errors.get('username', _ul('user_name'))}}</label>
+                    <input type="text" id="username" class="form-control" name="username" placeholder="{{ _ul('user_name') }}"
+                           value="{{ post_data.get('username', '')}}"/>
+                </div>
+                <div class="form-group {% if errors.get('vcode', '') %} has-error {% end %}">
+                    <label for="vcode" class="control-label">{{errors.get('vcode', _ul('valcode'))}}</label>
+                    <input type="text" id="vcode" name="vcode" class="form-control"/>
+                    <img src="/verify_code" alt="{{ _ul('click_to_refresh')}}" onclick="javascript:refresh_code(this);" class="verify_code"/>
+                    {{ _ul('click_to_refresh')}}
+                </div>
 
-    {% if errors.get('all', '') %}
-    <div class="form-group has error">
-        <label class="control-label">{{ errors.get('all', '') }}</label>
+                {% if errors.get('all', '') %}
+                <div class="form-group has error">
+                    <label class="control-label">{{ errors.get('all', '') }}</label>
+                </div>
+                {% end %}
+                <button type="submit" class="btn btn-default">{{ _ul('submit') }}</button>
+            </form>
+        </div>
     </div>
-    {% end %}
-    <button type="submit" class="btn btn-default">提交</button>
-</form>
+</div>
 {% end %}
 {% block footer %}
 <script type="text/javascript" src="{{static_url('js/register.js')}}">

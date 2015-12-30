@@ -1,30 +1,40 @@
 {% extends 'base.html' %}
 {% block header %}{% end %}
-{% block title %}登陆－喻家山下{% end %}
+{% block title %}{{ _ul('login') }}－喻家山下{% end %}
 {% block body %}
-<h3>登陆</h3>
-<form action="/login" method="post">
-    <div class="form-group {% if errors.get('login_key', '') %} has-error {% end %}">
-        <label for="login_key" class="control-label">{{ errors.get('email', u'邮箱或用户名') }}</label>
-        <input type="text" value="{{ post_data.get('login_key', '')}}" class="form-control" id="login_key" placeholder="填写您的邮箱或用户名" name="login_key"/>
-    </div>
-    <div class="form-group {% if errors.get('password', '') %} has-error {% end %}">
-        <label for="password" class="control-label">{{ errors.get('password', u'密码') }}</label>
-        <input type="password" class="form-control" id="password" placeholder="填写您的密码" name="password"/>
-    </div>
-    <div class="form-group {% if errors.get('vcode', '') %} has-error {% end %}">
-        <label for="vcode" class="control-label">{{errors.get('vcode', u'验证码')}}</label>
-        <input type="text" id="vcode" name="vcode" class="form-control"/>
-        <img src="/verify_code" alt="点我刷新" onclick="javascript:refresh_code(this);" class="verify_code"/> 如看不清,点击图片刷新
-    </div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-4">
+            <h3>{{ _ul('login') }}</h3>
 
-    {% if errors.get('all', '') %}
-    <div class="form-group has error">
-        <label class="control-label">{{ errors.get('all', '') }}</label>
+            <form action="/login" method="post">
+                <div class="form-group {% if errors.get('login_key', '') %} has-error {% end %}">
+                    <label for="login_key" class="control-label">{{ errors.get('email', _ul('email_or_username')) }}</label>
+                    <input type="text" value="{{ post_data.get('login_key', '')}}" class="form-control" id="login_key"
+                           placeholder="{{ _ul('your_email_or_username') }}" name="login_key"/>
+                </div>
+                <div class="form-group {% if errors.get('password', '') %} has-error {% end %}">
+                    <label for="password" class="control-label">{{ errors.get('password', _ul('password')) }}</label>
+                    <input type="password" class="form-control" id="password" placeholder="{{ _ul('password') }}" name="password"/>
+                </div>
+                <div class="form-group {% if errors.get('vcode', '') %} has-error {% end %}">
+                    <label for="vcode" class="control-label">{{errors.get('vcode', _ul('valcode'))}}</label>
+                    <input type="text" id="vcode" name="vcode" class="form-control"/>
+                    <img src="/verify_code" alt="{{ _ul('click_to_refresh') }}" onclick="javascript:refresh_code(this);" class="verify_code"/>
+                    {{ _ul('click_to_refresh') }}
+                </div>
+
+                {% if errors.get('all', '') %}
+                <div class="form-group has error">
+                    <label class="control-label">{{ errors.get('all', '') }}</label>
+                </div>
+                {% end %}
+                <button type="submit" class="btn btn-primary">{{ _ul('submit') }}</button>&nbsp;&nbsp;
+                <a href="/register">{{ _ul('first_register') }}</a>
+            </form>
+        </div>
     </div>
-    {% end %}
-    <button type="submit" class="btn btn-default">提交</button>
-</form>
+</div>
 {% end %}
 {% block footer %}
 <script type="text/javascript" src="{{static_url('js/login.js')}}">

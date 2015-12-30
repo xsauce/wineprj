@@ -14,3 +14,9 @@
 .text-wrapper{
     padding:20px;
 }
+#product_buy_form{
+    /*padding: 5px;*/
+}
+#product_buy_form p{
+    margin: 10px 0 20px 0;
+}

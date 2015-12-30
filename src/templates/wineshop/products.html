@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% block header %}{% end %}
-{% block title %}喻家山下-葡萄酒名录{% end %}
+{% block title %}喻家山下-{{ _ul('products') }}{% end %}
 {% block body %}
 <div class="container">
     <div class="row">
         <div class="col-sm-6 col-md-2">
         <div class="list-group" id="filter_list">
-            <a href="/products" class="list-group-item active" data-item="">ALL GRAPE SORT</a>
+            <a href="/products" class="list-group-item active" data-item="">{{ _ul('all') }}</a>
             {% for g in grape_sort %}
             <a href="?grape_sort={{ g }}" class="list-group-item" data-item="{{ g }}">{{ g }}</a>
             {% end %}
@@ -24,14 +24,14 @@
         <div class="col-sm-6 col-md-3">
             <div class="thumbnail">
                 <a href="/product_detail/{{ product['pid'] }}"><img src="{{ static_url(product['fimg'])}}"
-                                                                    alt="{{ product['name'] }}" width="300" height="300"/></a>
+                                                                    alt="{{ product['name'] }}" class="img-responsive"/></a>
                 <div class="caption">
                     <h3><a href="/product_detail/{{ product['pid'] }}">{{ product['name']}}</a></h3>
                     <p>{{ product['description'] }}</p>
                     <p>
-                        <input type="button" value="BUY" data-pid="{{ product['pid'] }}" class="btn buy-btn"/>
-                        <input type="button" value="ADDIN" data-pid="{{ product['pid'] }}"
-                               class="btn btn-success shopcar-btn"/>
+                        <input type="button" value="{{_ul('buy')}}" data-pid="{{ product['pid'] }}" class="btn btn-danger buy-btn"/>
+                        <input type="button" value="{{ _ul('add_in')}}" data-pid="{{ product['pid'] }}"
+                               class="btn btn-primary shopcar-btn"/>
                     </p>
                 </div>
             </div>
@@ -52,14 +52,14 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">提示</h4>
+                <h4 class="modal-title">{{ _ul('tip') }}</h4>
             </div>
             <div class="modal-body">
-                <p>该商品已经加入了您的购物车</p>
+                <p>{{ _ul('product_added_into_cart') }}</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">继续购物</button>
-                <button type="button" class="btn btn-primary">下单结算</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ _ul('continue_shopping')}}</button>
+                <a class="btn btn-primary" href="/shopcar">{{ _ul('confirm_order')}}</a>
             </div>
         </div>
     </div>

@@ -4,8 +4,6 @@
 {% end %}
 {% block title %}喻家山下-{{ product['name'] }}{% end %}
 {% block body %}
-
-
 <div class="container">
     <div class="row">
         <div class="col-sm-12 col-md-4">
@@ -45,35 +43,86 @@
                 </ul>
             </div>
         </div>
-        <div class="col-sm-12 col-md-8">
+        <div class="col-sm-12 col-md-5">
             <div class="product_info">
                 <h3>{{ product['name'] }}</h3>
+                <hr/>
+                <form method="post" action="/shopcar" id="product_buy_form">
+                    <input type="hidden" value="{{ product['pid']}}" name="pid"/>
 
-                <div class="well well-sm">
-                    <p>价格: ￥{{ product['price'] }}</p>
+                    <p>{{ _ul('price') }}: {{ _ul('currency_unit') }}{{ product['price'] }}</p>
 
-                    <p>库存有1瓶 预估{{ delivery_days }}天到货</p>
-                </div>
-                <p>
-                    <a href="/shopcar/{{ product['pid'] }}" class="btn btn-danger">立即购买</a>
-                    <a href="" class="btn btn-primary shopcar-btn">加入购物车</a>
-                </p>
+                    <p>{{ _ul('store') + _ul('has') }}1{{ _ul('bottle') }}</p>
+
+                    <p>{{ _ul('purchase_count') }}: <input type="number" id="purchase_count" name="purchase_count"
+                                                           placeholder="1" value="1"
+                                                           class="product-count"/></p>
+
+                    <p>
+                        <input class="btn btn-danger" value="{{ _ul('buy') }}" type="submit"/>
+                        <input class="btn btn-primary shopcar-btn" value="{{ _ul('add_in') }}" type="button"/>
+                    </p>
+                </form>
             </div>
         </div>
     </div>
     <div id="product_detail">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active">
-                <a href="#description" aria-controls="#description" role="tab" data-toggle="tab">Description</a>
+                <a href="#description" aria-controls="#description" role="tab" data-toggle="tab">{{
+                    _ul('description')}}</a>
             </li>
-            <li role="presentation"><a href="#chateau" aria-controls="#chateau" role="tab" data-toggle="tab">Chateau</a></li>
-            <li role="presentation"><a href="#reviews" aria-controls="#reviews" role="tab" data-toggle="tab">Reviews&nbsp;<span
-                    class="badge">10</span></a></li>
+            <li role="presentation"><a href="#chateau" aria-controls="#chateau" role="tab" data-toggle="tab">{{
+                _ul('chateau')}}</a>
+            </li>
+            <li role="presentation"><a href="#reviews" aria-controls="#reviews" role="tab" data-toggle="tab">{{
+                _ul('review') }}&nbsp;<span
+                        class="badge">10</span></a></li>
         </ul>
         <div class="tab-content">
             <div id="description" role="tabpanel" class="tab-pane active">
                 <div class="text-wrapper">
-                    {{ product['description'] }}
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <tr>
+                                        <td class="font-bold">{{ _ul('brand')}}</td>
+                                        <td>{{ product['brand'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold">{{ _ul('country')}}</td>
+                                        <td>{{ product['country'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold">{{ _ul('area')}}</td>
+                                        <td>{{ product['area'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold">{{ _ul('grape_sort')}}</td>
+                                        <td>{{ product['grape_sort'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold">{{ _ul('scene')}}</td>
+                                        <td>{{ product['scene'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold">{{ _ul('sort')}}</td>
+                                        <td>{{ product['sort'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold">{{ _ul('wine_level')}}</td>
+                                        <td>{{ product['wine_level'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold">{{ _ul('volume')}}</td>
+                                        <td>{{ product['volume'] }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <p>{{ product['description'] }}</p>
                 </div>
             </div>
             <div id="chateau" role="tabpanel" class="tab-pane">
@@ -85,6 +134,25 @@
                 <div class="text-wrapper">
                     User1: I Like it
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="shopcar_tip_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ _ul('tip') }}</h4>
+            </div>
+            <div class="modal-body">
+                <p>{{ _ul('product_added_into_cart') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ _ul('continue_shopping')}}
+                </button>
+                <a class="btn btn-primary" href="/shopcar">{{ _ul('confirm_order')}}</a>
             </div>
         </div>
     </div>

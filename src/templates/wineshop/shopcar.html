@@ -2,47 +2,56 @@
 {% block header %}{% end %}
 {% block title %}购物车{% end %}
 {% block body %}
-<h2>购物车</h2>
-<form action="/confirm_order" method="post">
-    <div class="shopcar_list">
-        <h2>我的购物车</h2>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>商品</th>
-                <th>属性</th>
-                <th>单价</th>
-                <th>数量</th>
-                <th>小计</th>
-                <th>操作</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for product in product_list_in_shopcar %}
-            <tr>
-                <input type="hidden" value="{{ product['pid'] }}" name="product_id_list_in_shopcar"/>
-                <td>{{ product['name'] }}</td>
-                <td>{{ product['volume'] }}ml</td>
-                <td>￥{{ product['price'] }}</td>
-                <td><input type="number" value="{{ product['purchase_count'] }}"
-                           name="product-{{ product['pid'] }}-purchase_count"/></td>
-                <td><span id="product-{{ product['pid'] }}-sum">{{ product['price'] * product['purchase_count'] }}</span></td>
-                <td><input type="button" id="product-{{ product['pid'] }}-deletebtn" value="删除" class="btn btn-danger"/></td>
-            </tr>
-            {% end %}
-            </tbody>
-        </table>
-        <div class="sum_product_price">
-            <p>共<span id="product_count_in_shopcar">{{ product_count_in_shopcar }}</span>件 商品金额: ￥<span
-                    id="product_sum_price_in_shopcar">{{ product_sum_price_in_shopcar }}</span></p>
-            <p>总计金额: ￥<span id="total_price">{{ product_sum_price_in_shopcar }}</span></p>
+<div class="container">
+    <form action="/confirm_order" method="post">
+        <div class="shopcar_list">
+            <h2>{{ _ul('my_cart') }}</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>{{ _ul('product') }}</th>
+                    <th>{{ _ul('attr') }}</th>
+                    <th>{{ _ul('price') }}</th>
+                    <th>{{ _ul('count') }}</th>
+                    <th>{{ _ul('subtotal') }}</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set money_unit = _ul('currency_unit') %}
+                {% for product in product_list_in_shopcar %}
+                <tr>
+                    <input type="hidden" value="{{ product['pid'] }}" name="product_id_list_in_shopcar"/>
+                    <td>{{ product['name'] }}</td>
+                    <td>{{ product['volume'] }}ml</td>
+                    <td>{{ money_unit }}{{ product['price'] }}</td>
+                    <td><input type="number" value="{{ product['purchase_count'] }}"
+                               name="product-{{ product['pid'] }}-purchase_count" class="product-count"/></td>
+                    <td><span
+                            id="product-{{ product['pid'] }}-sum">￥{{ product['price'] * product['purchase_count'] }}</span>
+                    </td>
+                    <td><input type="button" id="product-{{ product['pid'] }}-deletebtn" value="{{ _ul('delete') }}"
+                               class="btn btn-danger"/></td>
+                </tr>
+                {% end %}
+                <tr>
+                    <td colspan="4" class="text-right">
+                        <p>{{ _ul('total') }}<span id="product_sum_count">{{ product_count_in_shopcar }}</span>{{ _ul('piece') }} {{_ul('product_total_price')}}: </p>
+                    </td>
+                    <td>
+                        <p><span id="product_sum_price" class="font-bold text-danger">￥{{ product_sum_price_in_shopcar }}</span></p>
+                    </td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="btn_list">
+                <input type="button" value="{{ _ul('continue_shopping') }}" class="btn btn-default" id="return_shopping_btn"/>
+                <input type="submit" value="{{ _ul('confirm_order') }}" class="btn btn-primary pull-right" id="confirm_order_btn"/>
+            </div>
         </div>
-        <div class="btn_list">
-            <input type="button" value="继续购物" class="btn btn-default" id="return_shopping_btn"/>
-            <input type="submit" value="下单结算" class="btn btn-primary" id="confirm_order_btn"/>
-        </div>
-    </div>
-</form>
+    </form>
+</div>
 {% end %}
 {% block footer %}
 {% end %}

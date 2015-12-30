@@ -1,7 +1,11 @@
 # coding:utf-8
 import argparse
+import csv
+import os
 import sys
 import uuid
+import collections
+from tornado import locale
 from models.wineshop import Product, ShipCity, Poster
 import settings
 from utils.image_tool import batch_create_thumbnail, batch_normalized_photo
@@ -37,7 +41,27 @@ class WebManager(object):
     def startwebapp(self, port):
         app = webapp()
         app.listen(port)
+        locale.load_translations(settings.LOCALE_DIR)
         IOLoop.current().start()
+
+    def gen_multi_locale_file(self):
+        locale_seed_file = os.path.join(settings.ROOT_DIR, 'locale_seed.csv')
+        locale_list = {}
+        with open(locale_seed_file) as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                key = row['key']
+                for k, v in row.items():
+                    if k not in ['key', 'plural']:
+                        i_locale = locale_list.setdefault(k, {})
+                        i_locale[key] = (v,)
+        for i_locale, locale_list in locale_list.items():
+            locale_file = os.path.join(settings.LOCALE_DIR, i_locale + '.csv')
+            with open(locale_file, 'wb') as f:
+                writer = csv.writer(f)
+                for key, row in locale_list.items():
+                    writer.writerow([key, row[0]])
+
 
     def product_thumbnail(self):
         batch_create_thumbnail((50, 50))
@@ -98,6 +122,7 @@ if __name__ == '__main__':
     parser.add_argument('-product_thumbnail', action='store_true')
     parser.add_argument('-photo_normalized', action='store_true')
     parser.add_argument('-shell', action='store_true')
+    parser.add_argument('-gen_multi_locale_file', action='store_true')
     args = parser.parse_args(sys.argv[1:])
     manager = WebManager()
     if args.testdb:
@@ -117,6 +142,8 @@ if __name__ == '__main__':
         exit(0)
     if args.shell:
         manager.shell()
+    if args.gen_multi_locale_file:
+        manager.gen_multi_locale_file()
 
 
 

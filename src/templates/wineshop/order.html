@@ -1,23 +1,19 @@
 {% extends 'base.html' %}
 {% block header %}{% end %}
-{% block title %}填写订单{% end %}
+{% block title %}{{ _ul('submit_order') }}{% end %}
 {% block body %}
+<div class="container">
 <div class="confirm_order">
-    <h2>填写订单</h2>
-
+    <h2>_ul('submit_order')</h2>
     <form action="/submit_order" method="post">
         <div class="shipping_info">
-            <h3>收货信息</h3>
-
-            <p>如果您以前购买过，请<input type="button" class="btn btn-default" value="登录" id="login-btn"/>来读取地址信息，并获取积分</p>
-
-            <div class="form-horizontal text-left">
+            <h3>{{ _ul('delivery_info') }}</h3>
+            <div class="form-horizontal">
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">送货地址</label>
-
-                    <div class="col-sm-5">
+                    <label class="col-sm-1 control-label">{{ _ul('address') }}</label>
+                    <div class="col-sm-3">
                         <select class="form-control" id="addr_level1" name="addr_level1">
-                            <option value="">-请选择-</option>
+                            <option value="">-{{ _ul('please_choose') }}-</option>
                             {% for city in ship_cities.keys() %}
                             <option value="{{ city }}" {% if post_data.get('addr_level1', '')==city %}selected="selected"{% end %}>{{ city }}</option>
                             {% end %}
@@ -26,7 +22,7 @@
                         <span class="error">{{ field_error['addr_level1'] }}</span>
                         {% end %}
                     </div>
-                    <div class="col-sm-5">
+                    <div class="col-sm-3">
                         <select class="form-control" id="addr_level2" {% if not post_data.get('addr_level2', '') %}disabled="disabled"{% end %} name="addr_level2">
                             {% for addr_l2 in ship_cities.get(post_data.get('addr_level1', ''), []) %}
                             <option value="{{ addr_l2 }}" {% if addr_l2==post_data.get('addr_level2', '') %}selected="selected"{% end %}>{{ addr_l2 }}</option>
@@ -38,7 +34,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
+                    <div class="col-sm-offset-1 col-sm-6">
                         <input type="text" value="{{ post_data.get('addr_level3', '')}}" name="addr_level3"
                                class="form-control"/>
                         {% if field_error.get('addr_level3','') %}
@@ -47,9 +43,8 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">收货人</label>
-
-                    <div class="col-sm-10">
+                    <label class="col-sm-1 control-label">{{ _ul('receiver') }}</label>
+                    <div class="col-sm-6">
                         <input type="text" class="form-control" id="receiver" name="receiver"
                                value="{{ post_data.get('receiver', '')}}">
                         {% if field_error.get('receiver','') %}
@@ -58,9 +53,8 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">手机号</label>
-
-                    <div class="col-sm-10">
+                    <label class="col-sm-1 control-label">{{ _ul('phone') }}</label>
+                    <div class="col-sm-6">
                         <input type="text" class="form-control" id="phone" name="phone"
                                value="{{ post_data.get('phone', '')}}">
                         {% if field_error.get('phone','') %}
@@ -80,9 +74,9 @@
                 <!--</div>-->
                 <div class="form-group">
                     {% set need_receipt=(post_data.get('need_receipt', '') != '') %}
-                    <label class="col-sm-2 control-label">开发票</label>
+                    <label class="col-sm-1 control-label">{{ _ul('write_receipt') }}</label>
 
-                    <div class="col-sm-10">
+                    <div class="col-sm-6">
                         <div class="checkbox">
                             <label>
                                 <input type="checkbox" id="need_receipt" {% if need_receipt %} checked="checked" {% end %} name="need_receipt" value="1"/>
@@ -92,12 +86,12 @@
                 </div>
                 <div class="form-group" style="display: {% if need_receipt %} blocked {% else %} none {% end %}"
                      id="receipt_detail1">
-                    <div class="col-sm-offset-2 col-sm-10">
+                    <div class="col-sm-offset-1 col-sm-6">
                         <label class="radio-inline">
-                            <input type="radio" name="receipt_sort" id="person_receipt" value="个人发票" {% if post_data.get('receipt_sort','')==u'个人发票' %}checked="checked"{% end %}> 个人发票
+                            <input type="radio" name="receipt_sort" id="person_receipt" value="{{ _ul('person_receipt') }}" {% if post_data.get('receipt_sort','')=={{ _ul('person_receipt') }} %}checked="checked"{% end %}> {{ _ul('person_receipt') }}
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="receipt_sort" id="company_receipt" value="公司发票" {% if post_data.get('receipt_sort','')==u'公司发票' %}checked="checked"{% end %}> 公司发票
+                            <input type="radio" name="receipt_sort" id="company_receipt" value="{{ _ul('company_receipt') }}" {% if post_data.get('receipt_sort','')=={{ _ul('person_receipt') }} %}checked="checked"{% end %}> {{ _ul('person_receipt') }}
                         </label>
                         {% if field_error.get('receipt_sort','') %}
                         <span class="error">{{ field_error['receipt_sort'] }}</span>
@@ -105,9 +99,9 @@
                     </div>
                 </div>
                 <div class="form-group" style="display: {% if need_receipt %} blocked {% else %} none {% end %}" id="receipt_detail2">
-                    <div class="col-sm-offset-2 col-sm-4">
+                    <div class="col-sm-offset-1 col-sm-3">
                         <select name="receipt_content" class="form-control">
-                            <option value="">选择发票内容</option>
+                            <option value="">{{ _ul('choose_receipt_content') }}</option>
                             {% for content in receipt_content %}
                             <option value="{{ content }}" {% if post_data.get('receipt_content','')==content %}selected="selected"{% end %}>{{ content }}</option>
                             {% end %}
@@ -116,8 +110,8 @@
                         <span class="error">{{ field_error['receipt_content'] }}</span>
                         {% end %}
                     </div>
-                    <div class="col-sm-6">
-                        <input type="text" placeholder="请填写发票抬头" name="receipt_title" class="form-control"
+                    <div class="col-sm-3">
+                        <input type="text" placeholder="{{ _ul('receipt_title') }}" name="receipt_title" class="form-control"
                                value="{{ post_data.get('receipt_title', '')}}"/>
                         {% if field_error.get('receipt_title','') %}
                         <span class="error">{{ field_error['receipt_title'] }}</span>
@@ -125,23 +119,23 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">验证码</label>
+                    <label class="col-sm-1 control-label">{{ _ul('valcode') }}</label>
 
-                    <div class="col-sm-5">
+                    <div class="col-sm-3">
                         <input type="text" class="form-control" id="valcode" name="valcode">
                         {% if field_error.get('valcode','') %}
                         <span class="error">{{ field_error['valcode'] }}</span>
                         {% end %}
                     </div>
-                    <div class="col-sm-5">
-                        <img src="/verify_code" alt="点我刷新" onclick="javascript:refresh_code(this);"
-                             class="verify_code"/> 如看不清,点击图片刷新
+                    <div class="col-sm-3">
+                        <img src="/verify_code" alt="{{ _ul('click_to_refresh')}}" onclick="javascript:refresh_code(this);"
+                             class="verify_code"/> {{ _ul('click_to_refresh')}}
                     </div>
                 </div>
             </div>
         </div>
         <div class="pay_sort">
-            <h3>付款方式</h3>
+            <h3>{{ _ul('pay_sort') }}</h3>
             {% for pay_sort in pay_sorts %}
             <label class="radio-inline">
                 <input type="radio" name="pay_sort" value="{{ pay_sort }}" {% if post_data.get('pay_sort','')==pay_sort %}checked="checked"{% end %}> {{ pay_sort }}
@@ -153,54 +147,67 @@
 
         </div>
         <div class="order_list">
-            <h3>我的订单</h3>
+            <h3>{{ _ul('my_order') }}</h3>
             {% if field_error.get('order','') %}
             <span class="error">{{ field_error['order'] }}</span>
             {% end %}
             <table class="table">
                 <thead>
                 <tr>
-                    <th>商品</th>
-                    <th>属性</th>
-                    <th>单价</th>
-                    <th>数量</th>
-                    <th>小计</th>
+                    <th>{{ _ul('product') }}</th>
+                    <th>{{ _ul('attr') }}</th>
+                    <th>{{ _ul('price') }}</th>
+                    <th>{{ _ul('count') }}</th>
+                    <th>{{ _ul('subtotal') }}</th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
+                {% set money_unit = _ul('currency_unit') %}
                 {% for product in product_list_order %}
                 <tr>
                     <input type="hidden" value="{{ product['pid'] }}" name="product_id_list_in_order"/>
                     <td>{{ product['name'] }}</td>
                     <td>{{ product['volume'] }}</td>
-                    <td>￥{{ product['price'] }}</td>
-                    <td><input type="number" value="{{ product['purchase_count'] }}"
+                    <td>{{ money_unit }}{{ product['price'] }}</td>
+                    <td><input type="number" class="product-count" value="{{ product['purchase_count'] }}"
                                name="product-{{product['pid']}}-purchase_count"/></td>
                     <td><span
-                            id="product-{{ product['pid'] }}-sum">{{ product['price'] * product['purchase_count'] }}</span>
+                            id="product-{{ product['pid'] }}-sum">{{ money_unit }}{{ product['price'] * product['purchase_count'] }}</span>
                     </td>
-                    <td><input type="button" id="{{ product['pid']}}-deletebtn" value="删除" class="btn btn-danger"/></td>
+                    <td><input type="button" id="{{ product['pid']}}-deletebtn" value="{{ _ul('delete') }}" class="btn btn-danger"/></td>
                 </tr>
                 {% end %}
+                <tr>
+                    <td colspan="4" class="text-right">
+                        <p>{{ _ul('total')}}<span id="product_sum_count">{{ product_sum_count }}</span>{{ _ul('piece') }} {{ _ul('product_total_price') }}: </p>
+
+            <p>{{ _ul('delivery_cost') }}: </p>
+
+            <p>{{ _ul('total_price')}}: </p>
+                    </td>
+                    <td>
+                        <p><span id="product_sum_price" class="font-bold">{{ money_unit }}{{ product_sum_price }}</span></p>
+                        <p><span id="shipping_cost" class="font-bold">{{ money_unit }}{{ shipping_cost }}</span></p>
+                        <p><span id="total_price" class="font-bold text-danger">{{ money_unit }}{{ product_sum_price + shipping_cost }}</span></p>
+                    </td>
+                    <td></td>
+                </tr>
                 </tbody>
             </table>
         </div>
-        <div class="sum_product_price">
-            <p>共<span id="product_sum_count">{{ product_sum_count }}</span>件 商品金额: ￥<span
-                    id="product_sum_price">{{ product_sum_price }}</span></p>
+        <div class="sum_product_price text-primary">
 
-            <p>运费: ￥<span id="shipping_cost">{{ shipping_cost }}</span></p>
-
-            <p>总计金额: ￥<span id="total_price">{{ product_sum_price + shipping_cost }}</span></p>
         </div>
         <div class="btn_listing">
-            <input type="button" value="返回购物车" class="btn btn-default" id="return_shopcar_btn"/>
-            请确认订单无误后下单
-            <input type="submit" value="提交订单" class="btn btn-primary" id="confirm_order_btn"/>
+            <a class="btn btn-default" id="return_shopcar_btn" href="/shopcar">{{ _ul('return_cart') }}</a>
+            <p class="pull-right">
+            <input type="submit" value="{{ _ul('submit_order') }}" class="btn btn-primary pull-right" id="confirm_order_btn"/>
+            </p>
         </div>
     </form>
 
+</div>
 </div>
 {% end %}
 {% block footer %}
