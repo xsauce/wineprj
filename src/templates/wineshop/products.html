@@ -8,7 +8,7 @@
         <div class="list-group" id="filter_list">
             <a href="/products" class="list-group-item active" data-item="">{{ _ul('all') }}</a>
             {% for g in grape_sort %}
-            <a href="?grape_sort={{ g }}" class="list-group-item" data-item="{{ g }}">{{ g }}</a>
+            <a href="?grape_sort={{ g['value'] }}" class="list-group-item" data-item="{{ g['value'] }}">{{ _ul(g['display']) }}</a>
             {% end %}
           </div>
         </div>
@@ -23,7 +23,7 @@
         {% for product in product_list %}
         <div class="col-sm-6 col-md-3">
             <div class="thumbnail">
-                <a href="/product_detail/{{ product['pid'] }}"><img src="{{ static_url(product['fimg'])}}"
+                <a href="/product_detail/{{ product['pid'] }}"><img src="{{ static_url('photo/' + product['img_url'])}}"
                                                                     alt="{{ product['name'] }}" class="img-responsive"/></a>
                 <div class="caption">
                     <h3><a href="/product_detail/{{ product['pid'] }}">{{ product['name']}}</a></h3>

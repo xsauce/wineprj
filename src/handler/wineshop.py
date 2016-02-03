@@ -9,6 +9,7 @@ from utils.image_tool import get_thumbnail_uri
 # from utils.mongohelper import MongoHelper
 from utils.page_func import tojsonstr
 
+
 def _show_product_list_with_count(pid_with_count):
     product_list = ProductLL.get_product_by_pid_list(pid_with_count.keys())
     product_sum_count, product_sum_price = 0, 0
@@ -19,36 +20,35 @@ def _show_product_list_with_count(pid_with_count):
         product_sum_count += purchase_count
     return product_list, product_sum_count, product_sum_price
 
+
 class HomeHandler(WineShopCommonHandler):
     def get(self):
-        poster_list = PosterLL.get_poster_by_place('home')
+        poster_list = PosterLL().get_home_poster()
         self.page_render('wineshop/home.html', poster_list=poster_list)
 
 
 class ProductsHandler(WineShopCommonHandler):
     def _build_query_condition(self, query_args):
-        condition = []
+        condition = {}
         for k, v in query_args.items():
             if v and k in ['brand', 'country', 'area', 'grape_sort', 'scene', 'wine_level']:
                 if len(v) == 1 and v[0]:
-                    condition.append((k, v[0], WHERE_CONDITION.EXACT))
+                    condition[k] = v[0]
                 elif len(v) > 1:
-                    condition.append((k, v, WHERE_CONDITION.IN))
+                    condition[k] = v
             if v and k == 'price_range':
                 if len(v) == 1 and v[0]:
                     price_range = v[0].split(',')
-                    condition.append((k, price_range, WHERE_CONDITION.RANGE))
+                    condition[k] = price_range
         return condition
 
     def get(self):
         query_args = self.request.query_arguments
         query_condition = self._build_query_condition(query_args)
-        product_result = ProductLL.query_product_list(query_condition)
-        grape_sort = ProductLL.get_grape_sort_list()
+        product_result = ProductLL().query_product_list(query_condition)
+        grape_sort = ProductLL().get_grape_sort_list()
         product_list = []
         for product in product_result:
-            if product['img_url']:
-                product['fimg'] = product['img_url'][0]
             product_list.append(product)
         self.page_render('wineshop/products.html', product_list=product_list, grape_sort=grape_sort)
 
@@ -56,7 +56,7 @@ class ProductsHandler(WineShopCommonHandler):
 class ProductDetailHandler(WineShopCommonHandler):
     def get(self, product_id):
         if product_id:
-            product = ProductLL.get_one_by_pid(product_id)
+            product = ProductLL().get_one_by_pid(product_id)
             if not product:
                 errmsg = 'not found product %s in ProductDetailHanlder' % product_id
                 self.logger.error(errmsg)
@@ -88,8 +88,10 @@ class ShopCarHandler(WineShopCommonHandler):
         if post_data:
             product_id = post_data.get('pid', '')
             if product_id:
-                shopcar_dict[product_id] = shopcar_dict.setdefault(product_id, 0) + int(self.get_body_argument('purchase_count', 0))
-        product_list_in_shopcar, product_count_in_shopcar, product_sum_price_in_shopcar = _show_product_list_with_count(shopcar_dict)
+                shopcar_dict[product_id] = shopcar_dict.setdefault(product_id, 0) + int(
+                    self.get_body_argument('purchase_count', 0))
+        product_list_in_shopcar, product_count_in_shopcar, product_sum_price_in_shopcar = _show_product_list_with_count(
+            shopcar_dict)
         self.page_render('wineshop/shopcar.html',
                          product_list_in_shopcar=product_list_in_shopcar,
                          product_count_in_shopcar=product_count_in_shopcar,
@@ -102,7 +104,6 @@ class ShopCarHandler(WineShopCommonHandler):
         self._show_page(post_data=self.request.body_arguments)
 
 
-
 class ConfirmOrderHandler(WineShopCommonHandler):
     def post(self):
         order = {}
@@ -111,7 +112,7 @@ class ConfirmOrderHandler(WineShopCommonHandler):
             for i in pids_in_shopcar:
                 order[i] = int(self.get_body_argument('product-%s-purchase_count' % i))
             if not order:
-                #order is empty
+                # order is empty
                 raise OrderIsEmpty()
             product_list_order, product_sum_count, product_sum_price = _show_product_list_with_count(order)
             ship_cities = ShipCityLL.get_all_ship_cities()
@@ -176,7 +177,7 @@ class SubmitOrderHandlder(WineShopCommonHandler):
         if not re.match('\d{11}', post_data['phone']):
             field_error['phone'] = self._ul('incorrect_phone')
 
-        valcode = self.session.get_item(VALCODE_NAME, '').upper()
+        valcode = self.get_session().get_item(VALCODE_NAME, '').upper()
         if valcode == '':
             raise SessionOverTime()
         if valcode != post_data['valcode'].upper():
@@ -255,10 +256,10 @@ class LoginUserForm(object):
 
     def valid(self, handler):
         errors = {}
-        user = UserLL.valid_user(self.login_key, self.password, locale_func=self.locale_func)
-        if UserLL.LLERROR:
-            errors['all'] = UserLL.LLERROR
-        valcode = handler.session.get_item(VALCODE_NAME, '').upper()
+        user_ll = UserLL()
+        user = user_ll.valid_user(self.login_key, self.password, locale_func=self.locale_func)
+        errors['all'] = ','.join([self.locale_func(err) for err in user_ll.error])
+        valcode = handler.get_session().get_item(VALCODE_NAME, '').upper()
         if valcode == '':
             raise SessionOverTime()
         if valcode != self.vcode.upper():
@@ -295,7 +296,7 @@ class RegisterUserForm(object):
             errors['repeat_password'] = self.locale_func('passwords_type_twice_not_match')
         if not self.username:
             errors['username'] = self.locale_func('empty_user_name')
-        valcode = handler.session.get_item(VALCODE_NAME, '').upper()
+        valcode = handler.get_session().get_item(VALCODE_NAME, '').upper()
         if valcode == '':
             raise SessionOverTime()
         if valcode != self.vcode.upper():
@@ -313,7 +314,7 @@ class LoginUserHandler(WineShopCommonHandler):
         if errors:
             self.page_render('wineshop/login.html', errors=errors, post_data=login_form.__dict__)
         else:
-            self.session.set_item('user', tojsonstr(user.__dict__))
+            self.get_session().set_item('user', tojsonstr(user.__dict__))
             self.page_render('wineshop/tip.html', tip=self._ul('login_successfully'))
 
 
@@ -328,15 +329,10 @@ class RegisterUserHandler(WineShopCommonHandler):
             self.page_render('wineshop/register.html', errors=errors, post_data=register_form.__dict__)
         else:
             user = User(register_form.__dict__)
-            UserLL.add_one_uesr(user)
-            if UserLL.LLERROR == '':
+            user_ll = UserLL()
+            user_ll.add_one_user(user)
+            if user_ll.error:
                 self.page_render('wineshop/tip.html', tip=self._ul('register_successfully'))
             else:
-                errors['all'] = UserLL.LLERROR
+                errors['all'] = ','.join([self._ul(err) for err in user_ll.error])
                 self.page_render('wineshop/register.html', errors=errors, post_data=register_form.__dict__)
-
-
-
-
-
-

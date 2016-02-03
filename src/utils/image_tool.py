@@ -92,10 +92,6 @@ def get_thumbnail_uri(uri):
     return s[0] + '_t' + s[1]
 
 
-def create_thumbnail(image, size, save_path):
-    image.thumbnail(size, Image.ANTIALIAS)
-    image.save(save_path)
-
 def batch_create_thumbnail(size, photo_dir=settings.PHOTO_DIR, filter_name=''):
     for photo in os.listdir(photo_dir):
         if filter_name and not re.match(filter_name, photo):

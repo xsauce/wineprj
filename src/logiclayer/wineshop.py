@@ -1,152 +1,170 @@
 # coding:utf-8
 import hashlib
-from models.wineshop import Product, ShipCity, Poster, PaySort, SaleOrder, SaleOrderDetail, Repertory, SaleOrderTrace, \
-    User
-from readonly_cache_data import PAY_SORTS, RECEIPT_CONTENT
-from utils.sqlhelper import WHERE_CONDITION, TransactionContext
+import uuid
+from peewee import fn
+from const import *
+from logiclayer.helper import return_json
+from models.CommonModel import m2d, DB
+from models.wineshop import Poster, PaySort, ReceiptContent, Product, ProductPhoto, User, OrderState, SaleOrder, \
+    SaleOrderDetail, ShipCity, GrapeSort, Scene, ProductLabel, Country, Brand, Region, WineSort, WineLevel
+from utils.image_tool import get_thumbnail_uri
 
 
 class ProductLL(object):
-    @classmethod
-    def str_to_array(cls, img_url):
-        return img_url.split(',') if img_url else []
+    def _query_statement(self, k, v):
+        return getattr(Product, k) == v
 
-    @classmethod
-    def query_product_list(cls, query_condition):
-        where_str, where_values = '', {}
+    def _format_product_to_show(self, p, only_show_first_photo=False):
+        p.country = Country.get_display(p.country)
+        p.brand = Brand.get_display(p.brand)
+        p.region = Region.get_display(p.region)
+        p.grape_sort = GrapeSort.get_display(p.grape_sort)
+        p.sort = WineSort.get_display(p.sort)
+        p.wine_level = WineLevel.get_display(p.wine_level)
+        dp = m2d(p)
+        if only_show_first_photo:
+            # just show first photo
+            img = p.photos.where(ProductPhoto.seq_num == 1)[0]
+            dp['img_url'] = img.hash_value + '.' + img.photo_type
+        else:
+            img = p.photos
+            dp['img_url'] = [i.hash_value + '.' + i.photo_type for i in img]
+        scenes = p.scenes
+        labels = p.labels
+        dp['scenes'] = [Scene.get_display(i.scene) for i in scenes]
+        dp['labels'] = [ProductLabel.get_display(i.label) for i in labels]
+        return dp
+
+    def query_product_list(self, query_condition):
+        '''
+        :param query_condition: dict type
+        :return:
+        '''
+        where_condition = 1
         if query_condition:
-            where_str, where_values = WHERE_CONDITION.build(query_condition)
-        product_list = Product.find(where_str=where_str, sql_value=where_values, return_obj=False)
-        for p in product_list:
-            p['img_url'] = cls.str_to_array(p['img_url'])
+            for k, v in query_condition.items():
+                where_condition = where_condition & self._query_statement(k, v)
+        result = Product.select().where(where_condition)
+        product_list = []
+        for p in result:
+            dp = self._format_product_to_show(p, only_show_first_photo=True)
+            product_list.append(dp)
         return product_list
 
-    @classmethod
-    def get_product_by_pid_list(cls, pid_list):
-        where_value, where_str = WHERE_CONDITION.IN('pid', pid_list)
-        product_list = Product.find(where_str=where_str, sql_value=where_value, return_obj=False)
-        for p in product_list:
-            p['img_url'] = cls.str_to_array(p['img_url'])
+    def get_product_by_pid_list(self, pid_list):
+        '''
+        :param pid_list: list type
+        :return:
+        '''
+        result = Product.select().where(Product.pid << pid_list)
+        product_list = []
+        for p in result:
+            dp = self._format_product_to_show(p)
+            product_list.append(dp)
         return product_list
 
-    @classmethod
-    def get_grape_sort_list(cls):
-        result = Product.find(select_fields=['distinct grape_sort'])
-        grape_sort_list = []
-        for d in result:
-            grape_sort_list.append(d.grape_sort)
+    def get_grape_sort_list(self):
+        grape_sort_list = GrapeSort.select()
         return grape_sort_list
 
-    @classmethod
-    def get_one_by_pid(cls, pid):
-        where_value, where_str = WHERE_CONDITION.EXACT('pid', pid)
-        rs = Product.find_one(where_str=where_str, sql_value=where_value, return_obj=False)
-        if rs:
-            rs['img_url'] = cls.str_to_array(rs['img_url'])
-        else:
-            rs = {}
-        return rs
+    def get_one_by_pid(self, pid):
+        p = Product.select().where(Product.pid == pid)
+        if not p:
+            return {}
+        dp = self._format_product_to_show(p[0])
+        return dp
+
 
 class SaleOrderLL(object):
-    @classmethod
-    def add_one_order(cls, order, order_detail, user=None):
-        if order.pay_sort == PaySort.COD:
-            order.state = SaleOrder.get_order_state_num(SaleOrder.HANDLING)
-        elif order.pay_sort == PaySort.ALIPAY:
-            order.state = SaleOrder.get_order_state_num(SaleOrder.NOPAY)
+    def add_one_order(self, order, order_detail, user=None):
+        o_obj = SaleOrder(**order)
+        od_obj_list = []
+        for od in order_detail:
+            od_obj_list.append(SaleOrderDetail(**od))
+        user_obj = None
+        if user:
+            user_obj = User(user)
+        if o_obj.pay_sort == PaySort.get_value(COD):
+            o_obj.state = OrderState.get_value(HANDLING)
+        elif o_obj.pay_sort == PaySort.get_value(ALIPAY):
+            o_obj.state = OrderState.get_value(NOPAY)
         product_count = 0
         product_sum_price = 0.0
-        for od in order_detail:
-            product_count += od.purchase_count
-            product_sum_price += od.purchase_count * od.price
-        order.product_count = product_count
-        order.product_sum_price = product_sum_price
-        if user:
-            order.uid = user.uid
-        with TransactionContext():
-            soid = SaleOrder.insert_one_with_created_updated_at_return_pk(order)
+        for odb in od_obj_list:
+            product_count += odb.purchase_count
+            product_sum_price += odb.purchase_count * odb.price
+        o_obj.product_count = product_count
+        o_obj.product_sum_price = product_sum_price
+        if user_obj:
+            o_obj.user = user_obj
+        with DB.execution_context():
+            o_obj.soid = str(uuid.uuid4())
+            o_obj.save()
             pid_with_count = []
-            for od in order_detail:
-                od.soid = soid
+            for odb in od_obj_list:
+                odb.sale_order = o_obj
                 pid_with_count.append({'pid': od.pid, 'product_count': od.purchase_count})
-            SaleOrderDetail.insert_many_with_return_pk(order_detail)
+                odb.save()
             Repertory.sale_product_for_batch(pid_with_count)
             trace = SaleOrderTrace({'soid': soid, 'state': order.state})
             SaleOrderTrace.insert_one_with_created_updated_at_return_pk(trace)
 
-class ShipCityLL(object):
-    @classmethod
-    def district_to_array(cls, row):
-        row['district'] = row.get('district', '').decode('utf-8').split(',')
 
-    @classmethod
-    def get_all_ship_cities(cls):
-        rs = ShipCity.find(select_fields=['name', 'district'], return_obj=False)
-        if rs:
-            ds = {}
-            for r in rs:
-                cls.district_to_array(r)
-                ds[r['name'].decode('utf-8')] = r['district']
-            return ds
-        else:
-            return {}
+class ShipCityLL(object):
+    def get_all_ship_cities(self):
+        rs = ShipCity.select()
+        return rs
 
 
 class PosterLL(object):
-    @classmethod
-    def get_poster_by_place(cls, place):
-        where_value, where_str = WHERE_CONDITION.EXACT('show_place', place)
-        rs = Poster.find(select_fields=Poster.all_field(), sql_value=where_value, where_str=where_str, return_obj=False)
-        return rs
+    def get_recommend_poster(self):
+        return self._get_poster_by_place(RECOMMEND)
+
+    def get_home_poster(self):
+        return self._get_poster_by_place(HOME)
+
+    def _get_poster_by_place(self, place):
+        rs = Poster.select().where(Poster.place == place)
+        return m2d(rs)
+
 
 class PaySortLL(object):
-    @classmethod
-    def get_all_sort(cls):
-        return PAY_SORTS
+    def get_all_sort(self):
+        return PaySort.select()
+
 
 class ReceiptLL(object):
-    @classmethod
-    def get_all_content(cls):
-        return RECEIPT_CONTENT
+    def get_all_content(self):
+        return ReceiptContent.select()
 
 
 class UserLL(object):
-    LLERROR = ''
+    def __init__(self):
+        self.error = []
 
-    @classmethod
-    def md5_password(cls, password):
+    def _md5_password(self, password):
         md5 = hashlib.md5()
         md5.update(password)
         return md5.hexdigest()
 
-    @classmethod
-    def valid_user(cls, login_key, password, locale_func):
-        cls.LLERROR = ''
-        email_value, email_str = WHERE_CONDITION.EXACT('email', login_key)
-        username_value, username_str = WHERE_CONDITION.EXACT('username', login_key)
-        sql_value = {}
-        sql_value.update(email_value)
-        sql_value.update(username_value)
-        user = User.find_one(['uid', 'username', 'password'], sql_value, email_str + ' or ' + username_str)
+    @return_json
+    def valid_user(self, login_key, password):
+        user = User.select().where(User.email == login_key | User.username == login_key)
         if user:
-            if user.password == cls.md5_password(password):
+            if user.password == self._md5_password(password):
                 user.password = None
                 return user
             else:
-                UserLL.LLERROR = locale_func('wrong_password')
+                self.error.append('wrong_password')
         else:
-            cls.LLERROR = locale_func('no_exist_email_or_user_name')
-            return None
+            self.error.append('no_exist_email_or_user_name')
 
-    @classmethod
-    def add_one_uesr(cls, user, locale_func):
-        cls.LLERROR = ''
-        where_value, where_str = WHERE_CONDITION.EXACT('email', user.email)
-        rs = User.find_one(['uid'], where_value, where_str)
+    def add_one_user(self, user):
+        rs = User.select().where(User.email == user.get('email'))
         if rs:
-            cls.LLERROR = locale_func('email_is_registered')
-            return
-        user.password = cls.md5_password(user.password)
-        with TransactionContext():
-            User.insert_one_with_created_updated_at_return_pk(user)
-
+            self.error.append('email_is_registered')
+            return 0
+        user.password = self._md5_password(user.get('password'))
+        with DB.execution_context():
+            User.create(**user)
+        return 1

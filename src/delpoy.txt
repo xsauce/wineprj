@@ -5,3 +5,8 @@ CREATE USER 'wineprj'@'localhost' IDENTIFIED BY 'wineprj$123';
 CREATE DATABASE IF NOT EXISTS wineprj DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 GRANT ALL ON wineprj.* to 'wineprj'@'localhost' IDENTIFIED BY 'wineprj$123';
 dumps db_init.sql
+
+
+pip install tornado
+pip install peewee
+pip install mysql-python

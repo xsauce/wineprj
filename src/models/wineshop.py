@@ -1,198 +1,217 @@
 # coding: utf-8
-from CommonModel import *
-from utils.sqlhelper import WHERE_CONDITION
+from peewee import PrimaryKeyField, CharField, TextField, DateTimeField, ForeignKeyField, IntegerField, FloatField
+from models.CommonModel import BaseModel, UUIDField, TimeStampField, CacheModel
 
 __author__ = 'sam'
 
 
-class User(CommonModel):
-    __tablename__ = 'user'
-    __pk__ = 'uid'
-
-    uid = None
-    username = None
-    password = None
-    email = None
-    phone = None
-    avatar = None
-    created_at = None
-    updated_at = None
+class OrderState(CacheModel):
+    __objname__ = 'order_state'
 
 
-class Administrator(CommonModel):
-    __tablename__ = 'administrator'
-    __pk__ = 'aid'
-
-    aid = None
-    username = None
-    password = None
-    email = None
-    phone = None
-    created_at = None
-    updated_at = None
+class ProductLabel(CacheModel):
+    __objname__ = 'product_label'
 
 
-class Repertory(CommonModel):
-    __tablename__ = 'repertory'
-    __pk__ = 'pid'
-    pid = None
-    sale_count = None
-    store_count = None
-    created_at = None
-    updated_at = None
-
-    @classmethod
-    def sale_product(cls, pid, product_count):
-        sql = 'update %s set sale_count=sale_count+%s, store_count=store_count-%s where pid=%s' % (
-            cls.__tablename__, product_count, product_count, pid
-        )
-        SqlHelper().execute(sql, {})
-
-    @classmethod
-    def sale_product_for_batch(cls, pid_list_with_count):
-        '''
-        pid_list_with_count:data structure: {'pid': 113213, 'product_count':2 }
-        '''
-        sql = 'update ' + cls.__tablename__ + ' set sale_count=sale_count+%(product_count)s, store_count=store_count-%(product_count)s where pid=%(pid)s'
-        SqlHelper().execute_many(sql, pid_list_with_count)
+class WineSort(CacheModel):
+    __objname__ = 'wine_sort'
 
 
-class RepertoryEntry(CommonModel):
-    __tablename__ = 'repertory_entry'
-    __pk__ = 'reid'
-
-    reid = None
-    pid = None
-    entry_count = None
-    created_at = None
-    updated_at = None
+class Brand(CacheModel):
+    __objname__ = 'brand'
 
 
-class SaleOrder(CommonModel):
-    __tablename__ = 'sale_order'
-    __pk__ = 'soid'
-
-    NOPAY = u'未支付'
-    PAID = u'已支付'
-    HANDLING = u'订单处理'
-    DELIVERY = u'商品出库'
-    FINISH = u'订单完成'
-    CANCEL = u'订单缺消'
-    ORDER_STATE_CHOICES = (
-        (NOPAY, 0),
-        (PAID, 1),
-        (HANDLING, 2),
-        (DELIVERY, 3),
-        (FINISH, 4),
-        (CANCEL, 5)
-    )
-
-    @classmethod
-    def get_order_state_num(cls, choice):
-        return cls.choice_digitalize(choice, choice_list_name='ORDER_STATE_CHOICES')
-    @classmethod
-    def get_order_state_display(cls, num):
-        return cls.choice_display(num, choice_list_name='ORDER_STATE_CHOICES')
+class Country(CacheModel):
+    __objname__ = 'country'
 
 
-    soid = None
-    uid = None
-    addr_level1 = None
-    addr_level2 = None
-    addr_level3 = None
-    shipping_cost = None
-    product_sum_price = None
-    product_count = None
-    receiver = None
-    phone = None
-    receipt_sort = None
-    receipt_content = None
-    receipt_title = None
-    pay_sort = None
-    order_state = None
-    created_at = None
-    updated_at = None
+class Region(CacheModel):
+    __objname__ = 'region'
 
 
-class SaleOrderDetail(CommonModel):
-    __tablename__ = 'sale_order_detail'
-    __pk__ = 'sodid'
-
-    sodid = None
-    soid = None
-    pid = None
-    purchase_count = None
-    price = None
+class GrapeSort(CacheModel):
+    __objname__ = 'grape_sort'
 
 
-class SaleOrderTrace(CommonModel):
-    __tablename__ = 'sale_order_trace'
-    __pk__ = 'sotid'
-
-    sotid = None
-    soid = None
-    state = None
-    created_at = None
-    updated_at = None
-
-class ShipCity(CommonModel):
-    __tablename__ = 'ship_city'
-    __pk__ = 'city_id'
-
-    city_id = None
-    name = None
-    district = None
+class WineLevel(CacheModel):
+    __objname__ = 'wine_level'
 
 
-class Product(CommonModel):
-    __tablename__ = 'product'
-    __pk__ = 'pid'
-
-    pid = None
-    name = None
-    img_url = None
-    parent_id = None
-    description = None
-    volume = None
-    price = None
-    brand = None
-    country = None
-    area = None
-    grape_sort = None
-    scene = None
-    wine_level = None
-    sort = None
-    created_at = None
-    updated_at = None
+class Scene(CacheModel):
+    __objname__ = 'scene'
 
 
-class Poster(CommonModel):
-    __tablename__ = 'poster'
-    __pk__ = 'poster_id'
-
-    poster_id = None
-    description = None
-    show_place = None
-    seq = None
+class PostPlace(CacheModel):
+    __objname__ = 'post_place'
 
 
-class PaySort(CommonModel):
-    ALIPAY = u'支付宝'
-    COD = u'货到付款'
-    SORT_CHOICE = (
-        (ALIPAY, 1),
-        (COD, 2)
-    )
-    @classmethod
-    def get_sort_num(cls, choice):
-        return cls.choice_digitalize(choice, choice_list_name='SORT_CHOICE')
-    @classmethod
-    def get_sort_display(cls, num):
-        return cls.choice_display(num, choice_list_name='SORT_CHOICE')
+class PaySort(CacheModel):
+    __objname__ = 'pay_sort'
 
 
+class ReceiptSort(CacheModel):
+    __objname__ = 'receipt_sort'
+
+class ReceiptContent(CacheModel):
+    __objname__ = 'receipt_content'
+
+class ShipCity(CacheModel):
+    __objname__ = 'address'
+
+class Shop(BaseModel):
+    shop_id = UUIDField(primary_key=True)
+    shop_name = CharField(max_length=100, null=False)
+    address = CharField(max_length=200, null=False)
+    geo = CharField(max_length=50, null=False)
+    description = TextField(null=False)
+    created_at = DateTimeField()
+    updated_at = TimeStampField()
 
 
+class ShopPhoto(BaseModel):
+    photo_id = PrimaryKeyField()
+    hash_value = CharField(max_length=50)
+    shop = ForeignKeyField(Shop, related_name='photos')
+    photo_type = CharField(max_length=10)
 
 
+class User(BaseModel):
+    uid = UUIDField(primary_key=True)
+    username = CharField(max_length=100, null=False)
+    password = CharField(max_length=50, null=False)
+    email = CharField(max_length=50, null=False)
+    phone = CharField(max_length=20)
+    avatar = CharField(max_length=50)
+    created_at = DateTimeField(null=False)
+    updated_at = TimeStampField(null=False)
 
+
+class Administrator(BaseModel):
+    aid = PrimaryKeyField()
+    username = CharField(max_length=100, null=False)
+    password = CharField(max_length=50, null=False)
+    email = CharField(max_length=50, null=False)
+    phone = CharField(max_length=20, null=False)
+    created_at = DateTimeField(null=False)
+    updated_at = TimeStampField(null=False)
+
+
+class Product(BaseModel):
+    pid = UUIDField(primary_key=True)
+    name = CharField(max_length=100)
+    description = TextField()
+    volume = IntegerField()
+    price = FloatField()
+    shop = ForeignKeyField(Shop, related_name='products')
+    brand = CharField(max_length=20, choices=Brand.choices())
+    country = CharField(max_length=20, choices=Country.choices())
+    region = CharField(max_length=20, choices=Region.choices())
+    grape_sort = CharField(max_length=20, choices=GrapeSort.choices())
+    wine_level = CharField(max_length=20, choices=WineLevel.choices())
+    sort = CharField(max_length=20, choices=WineSort.choices())
+    created_at = DateTimeField(null=False)
+    updated_at = TimeStampField(null=False)
+
+
+class ProductLabelList(BaseModel):
+    pll_id = PrimaryKeyField()
+    product = ForeignKeyField(Product, related_name='labels')
+    label = CharField(max_length=10, choices=ProductLabel.choices())
+
+
+class ProductSceneList(BaseModel):
+    psl_id = PrimaryKeyField()
+    product = ForeignKeyField(Product, related_name='scenes')
+    scene = CharField(max_length=10, choices=Scene.choices())
+
+
+class ProductPhoto(BaseModel):
+    photo_id = PrimaryKeyField()
+    hash_value = CharField(max_length=50)
+    seq_num = IntegerField(null=False)
+    photo_type = CharField(max_length=10, null=False)
+    product = ForeignKeyField(Product, related_name='photos')
+    created_at = DateTimeField(null=False)
+    updated_at = TimeStampField(null=False)
+
+
+class Repertory(BaseModel):
+    repertory_id = PrimaryKeyField()
+    product = ForeignKeyField(Product, related_name='repertory')
+    sale_count = IntegerField(null=False, default=0)
+    store_count = IntegerField(null=False, default=0)
+    created_at = DateTimeField(null=False, default='NOW()')
+    updated_at = TimeStampField(null=False)
+
+    # @classmethod
+    # def sale_product(cls, pid, product_count):
+    #     sql = 'update %s set sale_count=sale_count+%s, store_count=store_count-%s where pid=%s' % (
+    #         cls.__tablename__, product_count, product_count, pid
+    #     )
+    #     SqlHelper().execute(sql, {})
+    #
+    # @classmethod
+    # def sale_product_for_batch(cls, pid_list_with_count):
+    #     '''
+    #     pid_list_with_count:data structure: {'pid': 113213, 'product_count':2 }
+    #     '''
+    #     sql = 'update ' + cls.__tablename__ + ' set sale_count=sale_count+%(product_count)s, store_count=store_count-%(product_count)s where pid=%(pid)s'
+    #     SqlHelper().execute_many(sql, pid_list_with_count)
+
+
+class RepertoryEntry(BaseModel):
+    reid = PrimaryKeyField()
+    product = ForeignKeyField(Product, related_name='repertory_entry')
+    entry_count = IntegerField(null=False)
+    created_at = DateTimeField(null=False)
+    updated_at = TimeStampField(null=False)
+
+
+class SaleOrder(BaseModel):
+    # @classmethod
+    # def get_order_state_num(cls, choice):
+    #     return cls.choice_digitalize(choice, choice_list_name='ORDER_STATE_CHOICES')
+    #
+    # @classmethod
+    # def get_order_state_display(cls, num):
+    #     return cls.choice_display(num, choice_list_name='ORDER_STATE_CHOICES')
+    soid = UUIDField(primary_key=True)
+    user = ForeignKeyField(User, related_name='orders')
+    addr_level1 = CharField(max_length=20, null=False)
+    addr_level2 = CharField(max_length=20, null=False)
+    addr_level3 = CharField(max_length=100, null=False)
+    shipping_cost = FloatField(null=False, default=0.0)
+    receiver = CharField(max_length=20, null=False)
+    phone = CharField(max_length=20, null=False)
+    receipt_sort = CharField(max_length=2, choices=ReceiptSort.choices())
+    receipt_content = CharField(max_length=20)
+    receipt_title = CharField(max_length=100)
+    pay_sort = CharField(max_length=2, choices=PaySort.choices())
+    order_state = CharField(max_length=2, choices=OrderState.choices())
+    created_at = DateTimeField(null=False)
+    updated_at = TimeStampField(null=False)
+
+
+class SaleOrderDetail(BaseModel):
+    sod_id = UUIDField(primary_key=True)
+    sale_order = ForeignKeyField(SaleOrder, related_name='detail')
+    product = ForeignKeyField(Product, related_name='sale_order')
+    purchase_count = IntegerField(null=False)
+    price = FloatField(null=False)
+
+
+class SaleOrderTrace(BaseModel):
+    sot_id = UUIDField(primary_key=True)
+    sale_order = ForeignKeyField(SaleOrder, related_name='trace')
+    state = CharField(max_length=2, choices=OrderState.choices())
+    created_at = DateTimeField(null=False)
+    updated_at = TimeStampField(null=False)
+
+
+class Poster(BaseModel):
+    poster_id = PrimaryKeyField()
+    hash_value = CharField(max_length=50, null=False)
+    description = CharField(max_length=100)
+    place = CharField(max_length=10, choices=PostPlace.choices(), null=False)
+    pic_type = CharField(max_length=10, null=False)
+    seq = IntegerField()

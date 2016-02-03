@@ -9,6 +9,7 @@ from utils.session_manager import Session
 
 COOKIE_SESSION_NAME = 'session_id'
 
+
 class CommonHandler(RequestHandler):
     def __init__(self, *args, **kwargs):
         super(CommonHandler, self).__init__(*args, **kwargs)
@@ -16,20 +17,18 @@ class CommonHandler(RequestHandler):
         self._session = None
 
     def get_current_user(self):
-        return self.session.get_item('user')
+        return self.get_session().get_item('user')
 
-    @property
-    def session(self):
+    def get_session(self):
         session_id = self.get_secure_cookie(COOKIE_SESSION_NAME)
         if self._session is None:
-            self._session = Session(session_id=session_id)
+            self._session = Session(session_id=session_id, expiry_time=settings.SESSION_EXPIRY_MINUTES)
         return self._session
 
-    def create_session_and_set_item(self, key, value, expiry_days=settings.SESSION_EXPIRY_DAYS):
+    def set_session_item(self, key, value):
         self.logger.debug('set session key %s value %s' % (key, value))
-        self._session = Session(expiry_days=expiry_days)
-        self.session.set_item(key, value)
-        self.set_secure_cookie(COOKIE_SESSION_NAME, self._session.session_id, expires_days=expiry_days)
+        self.get_session().set_item(key, value)
+        self.set_secure_cookie(COOKIE_SESSION_NAME, self._session.session_id, expires_days=self._session.expiry_time / 60 * 24)
 
 
 class WineShopCommonHandler(CommonHandler):
@@ -62,7 +61,7 @@ class WineShopCommonHandler(CommonHandler):
     def page_render(self, template, **kwargs):
         shopcar = self._get_shopcar_cookie()
         kwargs.update({'count_in_shopcar': len(shopcar)})
-        user_str = self.session.get_item('user')
+        user_str = self.get_current_user()
         if user_str:
             user = json.loads(user_str)
         else:

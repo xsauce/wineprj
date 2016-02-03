@@ -1,5 +1,4 @@
 import MySQLdb
-from DBUtils.PooledDB import PooledDB
 import settings
 
 class MySQLParameterize:

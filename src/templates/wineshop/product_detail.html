@@ -16,7 +16,7 @@
                             {% for index, img in enumerate(product['img_url']) %}
                             <div class="item {% if first %}{% set first=False %}active{% end %}"
                                  data-slide-number="{{ index }}">
-                                <img src="{{ static_url(img)}}" class="img-responsive"/>
+                                <img src="{{ static_url('photo/' + img)}}" class="img-responsive"/>
                             </div>
                             {% end %}
                         </div>
@@ -37,7 +37,7 @@
                     {% set first = True %}
                     {% for index, img in enumerate(product['img_url']) %}
                     <li id="photo-selector-{{ index }}" {% if first %}{% set first=False %}class="selected" {% end %}>
-                        <img src="{{ static_url(get_thumbnail_uri(img)) }}" alt="" class="img-responsive img-thumbnail">
+                        <img src="{{ static_url('photo/' + get_thumbnail_uri(img)) }}" alt="" class="img-responsive img-thumbnail">
                     </li>
                     {% end %}
                 </ul>
@@ -88,31 +88,31 @@
                                 <table class="table table-striped">
                                     <tr>
                                         <td class="font-bold">{{ _ul('brand')}}</td>
-                                        <td>{{ product['brand'] }}</td>
+                                        <td>{{ _ul(product['brand']) }}</td>
                                     </tr>
                                     <tr>
                                         <td class="font-bold">{{ _ul('country')}}</td>
-                                        <td>{{ product['country'] }}</td>
+                                        <td>{{ _ul(product['country']) }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="font-bold">{{ _ul('area')}}</td>
-                                        <td>{{ product['area'] }}</td>
+                                        <td class="font-bold">{{ _ul('region')}}</td>
+                                        <td>{{ _ul(product['region']) }}</td>
                                     </tr>
                                     <tr>
                                         <td class="font-bold">{{ _ul('grape_sort')}}</td>
-                                        <td>{{ product['grape_sort'] }}</td>
+                                        <td>{{ _ul(product['grape_sort']) }}</td>
                                     </tr>
                                     <tr>
                                         <td class="font-bold">{{ _ul('scene')}}</td>
-                                        <td>{{ product['scene'] }}</td>
+                                        <td>{{ ' '.join([_ul(ps) for ps in product['scenes']]) }}</td>
                                     </tr>
                                     <tr>
                                         <td class="font-bold">{{ _ul('sort')}}</td>
-                                        <td>{{ product['sort'] }}</td>
+                                        <td>{{ _ul(product['sort']) }}</td>
                                     </tr>
                                     <tr>
                                         <td class="font-bold">{{ _ul('wine_level')}}</td>
-                                        <td>{{ product['wine_level'] }}</td>
+                                        <td>{{ _ul(product['wine_level']) }}</td>
                                     </tr>
                                     <tr>
                                         <td class="font-bold">{{ _ul('volume')}}</td>

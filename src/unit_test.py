@@ -1,22 +1,17 @@
+from datetime import datetime
+import uuid
+from models.wineshop import Chateau
+
 __author__ = 'sam'
 import unittest
-from utils.sqlhelper import *
-from models.CommonModel import *
+from models.CommonModel import DB
 
 class TestWineShop(unittest.TestCase):
-    def test_sqlhelper(self):
-        db = SqlHelper('wineshop')
-        db.insert('test', [{'a': 1, 'b': 1}], ['a', 'b'])
-        r = db.query_all('select * from test')
-        self.assertEqual(len(r) >= 1, True)
-        db.close()
-    def test_common_model(self):
-        class T(CommonModel):
-            a = ''
-            b = ''
-        t = T({'a': 1, 'b': True})
-        self.assertTrue('a' in t.all_field())
-        self.assertEquals(t.a, 1)
+    def test_dal(self):
+        DB.connect()
+        c = Chateau.create(chateau_id=uuid.uuid4(), chateau_name='who', address='hello', geo='11,22', description='world', created_at=datetime.today())
+        c.save()
+        DB.close()
 
 if __name__ == '__main__':
     unittest.main()

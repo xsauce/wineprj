@@ -95,3 +95,12 @@ incorrect_receipt_content,Incorrect Receipt Content,请选择正确的发票内�
 empty_receipt_title,Empty Receipt Title,请填写发票抬头
 incorrect_purchase_count,Incorrect Purchase Count,请填写正确的购买数量
 submit_order_successfully,Submit Order Successfully,订单提交成功
+nopay,No Pay,未支付
+paid,Paid,已支付
+order_processing,Processing,订单处理
+product_delivery,Delivery,商品出库
+order_finish,Completed,订单完成
+order_cancel,Cancel,订单取消
+alipay,ALiPay,支付宝
+cod,COD,货到付款
+

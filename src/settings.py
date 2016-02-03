@@ -39,12 +39,14 @@ LOG_CONF = {
 
 LOCALE_DIR = os.path.join(ROOT_DIR, 'locale')
 
-SESSION_EXPIRY_DAYS = 1
+SESSION_EXPIRY_MINUTES = 24 * 60
 
 DEBUG = True
 
-
-
+CACHE_CONF = {
+    'type': 'json_file',
+    'uri': os.path.join(ROOT_DIR, 'cache.json')
+}
 
 APP_SETTINGS = {
     'autoreload': DEBUG,
@@ -56,5 +58,3 @@ APP_SETTINGS = {
     'compiled_template_cache': (not DEBUG),
     'cookie_secret': 'wineprj' if DEBUG else str(uuid.uuid4())
 }
-
-
