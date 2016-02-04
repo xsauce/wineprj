@@ -72,103 +72,101 @@ class WebManager(object):
         batch_normalized_photo((1024, 512), filter_name=r'post\d')
 
     def init_db(self, args):
-        with DB.execution_context() as ctx:
-            DB.create_tables([
-                Shop,
-                ShopPhoto,
-                User,
-                Administrator,
-                Product,
-                ProductLabelList,
-                ProductSceneList,
-                ProductPhoto,
-                Repertory,
-                RepertoryEntry,
-                SaleOrder,
-                SaleOrderDetail,
-                SaleOrderTrace,
-                Poster,
-                SessionDB
-            ])
+        DB.create_tables([
+            Shop,
+            ShopPhoto,
+            User,
+            Administrator,
+            Product,
+            ProductLabelList,
+            ProductSceneList,
+            ProductPhoto,
+            Repertory,
+            RepertoryEntry,
+            SaleOrder,
+            SaleOrderDetail,
+            SaleOrderTrace,
+            Poster,
+            SessionDB
+        ])
 
     def test_data(self, args):
-        with DB.execution_context() as ctx:
-            import random
-            labels = ProductLabel
-            brands = Brand
-            countries = Country
-            regions = Region
-            grape_sort = GrapeSort
-            scenes = Scene
-            wine_levels = WineLevel
-            wine_sorts = WineSort
+        import random
+        labels = ProductLabel.choices()
+        brands = Brand.choices()
+        countries = Country.choices()
+        regions = Region.choices()
+        grape_sort = GrapeSort.choices()
+        scenes = Scene.choices()
+        wine_levels = WineLevel.choices()
+        wine_sorts = WineSort.choices()
 
-            ProductSceneList.delete().execute()
-            ProductPhoto.delete().execute()
-            ProductLabelList.delete().execute()
-            Product.delete().execute()
-            ShopPhoto.delete().execute()
-            Shop.delete().execute()
-            shop_list = []
-            for i in range(5):
-                shop = Shop.create(
-                    shop_id=str(uuid.uuid4()),
-                    shop_name='shop' + str(i),
-                    address='address' + str(i),
-                    geo='%s,%s' % (random.randint(100, 200), random.randint(100, 200)),
-                    description='shop desciption',
+        ProductSceneList.delete().execute()
+        ProductPhoto.delete().execute()
+        ProductLabelList.delete().execute()
+        Product.delete().execute()
+        ShopPhoto.delete().execute()
+        Shop.delete().execute()
+        shop_list = []
+        for i in range(5):
+            shop = Shop.create(
+                shop_id=str(uuid.uuid4()),
+                shop_name='shop' + str(i),
+                address='address' + str(i),
+                geo='%s,%s' % (random.randint(100, 200), random.randint(100, 200)),
+                description='shop desciption',
+                created_at=datetime.datetime.now()
+            )
+            for a in range(2):
+                ShopPhoto.create(
+                    hash_value=str(random.randint(1, 8)),
+                    photo_type='jpg',
+                    shop=shop
+                )
+            shop_list.append(shop)
+
+        for i in range(100):
+            product = Product.create(
+                pid=str(uuid.uuid4()),
+                name='wine' + str(i),
+                description='wine description',
+                volume=random.randint(375, 999),
+                price=random.randint(50, 200),
+                shop=shop_list[random.randint(0, 4)],
+                brand=brands[random.randint(0, 1)][0],
+                country=countries[random.randint(0, 1)][0],
+                region=regions[random.randint(0, 1)][0],
+                grape_sort=grape_sort[random.randint(0, 4)][0],
+                wine_level=wine_levels[random.randint(0, 2)][0],
+                sort=wine_sorts[random.randint(0, 1)][0],
+                created_at=datetime.datetime.now())
+            ProductLabelList.create(
+                    product=product,
+                    label=labels[random.randint(0, 1)][0]
+            )
+            for a in range(3):
+                ProductPhoto.create(
+                    hash_value=str(random.randint(0, 9)),
+                    seq_num=a,
+                    photo_type='jpg',
+                    product=product,
                     created_at=datetime.datetime.now()
                 )
-                for a in range(2):
-                    ShopPhoto.create(
-                        hash_value=str(random.randint(1, 8)),
-                        photo_type='jpg',
-                        shop=shop
-                    )
-                shop_list.append(shop)
-
-            for i in range(100):
-                product = Product.create(
-                    pid=str(uuid.uuid4()),
-                    name='wine' + str(i),
-                    description='wine description',
-                    volume=random.randint(375, 999),
-                    price=random.randint(50, 200),
-                    shop=shop_list[random.randint(0, 4)],
-                    brand=brands[random.randint(0, 1)][0],
-                    country=countries[random.randint(0, 1)][0],
-                    region=regions[random.randint(0, 1)][0],
-                    grape_sort=grape_sort[random.randint(0, 4)][0],
-                    wine_level=wine_levels[random.randint(0, 2)][0],
-                    sort=wine_sorts[random.randint(0, 1)][0],
-                    created_at=datetime.datetime.now())
-                ProductLabelList.create(
-                        product=product,
-                        label=labels[random.randint(0, 1)][0]
+            for b in range(2):
+                ProductSceneList.create(
+                    product=product,
+                    scene=scenes[random.randint(0, 3)][0]
                 )
-                for a in range(3):
-                    ProductPhoto.create(
-                        hash_value=str(random.randint(0, 9)),
-                        seq_num=a,
-                        photo_type='jpg',
-                        product=product,
-                        created_at=datetime.datetime.now()
-                    )
-                for b in range(2):
-                    ProductSceneList.create(
-                        product=product,
-                        scene=scenes[random.randint(0, 3)][0]
-                    )
-            print 'product insert 100 record'
-            Poster.delete().execute()
-            posters = [
-                {'hash_value': '1', 'description': u'post1', 'place': 'home', 'seq': 1, 'pic_type': 'jpg'},
-                {'hash_value': '2', 'description': u'post2', 'place': 'home', 'seq': 2, 'pic_type': 'jpg'},
-                {'hash_value': '3', 'description': u'post3', 'place': 'home', 'seq': 3, 'pic_type': 'jpg'}
-            ]
-            Poster.insert_many(posters).execute()
-            print 'poster insert 3'
-            print 'finish'
+        print 'product insert 100 record'
+        Poster.delete().execute()
+        posters = [
+            {'hash_value': '1', 'description': u'post1', 'place': 'home', 'seq': 1, 'pic_type': 'jpg'},
+            {'hash_value': '2', 'description': u'post2', 'place': 'home', 'seq': 2, 'pic_type': 'jpg'},
+            {'hash_value': '3', 'description': u'post3', 'place': 'home', 'seq': 3, 'pic_type': 'jpg'}
+        ]
+        Poster.insert_many(posters).execute()
+        print 'poster insert 3'
+        print 'finish'
 
 
 if __name__ == '__main__':
@@ -178,7 +176,7 @@ if __name__ == '__main__':
     - build_env -user=Sam, build running env, required os current user name,
     - photo_normalized, normalized photoes in /static/photo folder,
     - shell, start a shell within this project.
-    - gen_multi_local_file, use local_seed.csv to generate some local.csv,
+    - gen_multi_locale_file, use local_seed.csv to generate some local.csv,
     - init_db, create table
     '''
     parser = argparse.ArgumentParser(description='wine prj args help')

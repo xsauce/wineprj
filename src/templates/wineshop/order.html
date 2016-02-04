@@ -3,216 +3,232 @@
 {% block title %}{{ _ul('submit_order') }}{% end %}
 {% block body %}
 <div class="container">
-<div class="confirm_order">
-    <h2>_ul('submit_order')</h2>
-    <form action="/submit_order" method="post">
-        <div class="shipping_info">
-            <h3>{{ _ul('delivery_info') }}</h3>
-            <div class="form-horizontal">
-                <div class="form-group">
-                    <label class="col-sm-1 control-label">{{ _ul('address') }}</label>
-                    <div class="col-sm-3">
-                        <select class="form-control" id="addr_level1" name="addr_level1">
-                            <option value="">-{{ _ul('please_choose') }}-</option>
-                            {% for city in ship_cities.keys() %}
-                            <option value="{{ city }}" {% if post_data.get('addr_level1', '')==city %}selected="selected"{% end %}>{{ city }}</option>
-                            {% end %}
-                        </select>
-                        {% if field_error.get('addr_level1','') %}
-                        <span class="error">{{ field_error['addr_level1'] }}</span>
-                        {% end %}
-                    </div>
-                    <div class="col-sm-3">
-                        <select class="form-control" id="addr_level2" {% if not post_data.get('addr_level2', '') %}disabled="disabled"{% end %} name="addr_level2">
-                            {% for addr_l2 in ship_cities.get(post_data.get('addr_level1', ''), []) %}
-                            <option value="{{ addr_l2 }}" {% if addr_l2==post_data.get('addr_level2', '') %}selected="selected"{% end %}>{{ addr_l2 }}</option>
-                            {% end %}
-                        </select>
-                        {% if field_error.get('addr_level2','') %}
-                        <span class="error">{{ field_error['addr_level2'] }}</span>
-                        {% end %}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-1 col-sm-6">
-                        <input type="text" value="{{ post_data.get('addr_level3', '')}}" name="addr_level3"
-                               class="form-control"/>
-                        {% if field_error.get('addr_level3','') %}
-                        <span class="error">{{ field_error['addr_level3'] }}</span>
-                        {% end %}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-1 control-label">{{ _ul('receiver') }}</label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" id="receiver" name="receiver"
-                               value="{{ post_data.get('receiver', '')}}">
-                        {% if field_error.get('receiver','') %}
-                        <span class="error">{{ field_error['receiver'] }}</span>
-                        {% end %}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-1 control-label">{{ _ul('phone') }}</label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" id="phone" name="phone"
-                               value="{{ post_data.get('phone', '')}}">
-                        {% if field_error.get('phone','') %}
-                        <span class="error">{{ field_error['phone'] }}</span>
-                        {% end %}
-                    </div>
-                </div>
-                <!--<div class="form-group">-->
-                <!--<label class="col-sm-2 control-label">送货时间</label>-->
+    <div class="confirm_order">
+        <h2>{{ _ul('submit_order') }}</h2>
 
-                <!--<div class="col-sm-5">-->
-                <!--<input type="date" class="form-control" id="arrive_date" name="arrive_date"/>-->
-                <!--</div>-->
-                <!--<div class="col-sm-5">-->
-                <!--<input type="time" class="form-control" id="arrive_time" name="arrive_time"/>-->
-                <!--</div>-->
-                <!--</div>-->
-                <div class="form-group">
-                    {% set need_receipt=(post_data.get('need_receipt', '') != '') %}
-                    <label class="col-sm-1 control-label">{{ _ul('write_receipt') }}</label>
+        <form action="/submit_order" method="post">
+            <div class="shipping_info">
+                <h3>{{ _ul('delivery_info') }}</h3>
 
-                    <div class="col-sm-6">
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" id="need_receipt" {% if need_receipt %} checked="checked" {% end %} name="need_receipt" value="1"/>
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">{{ _ul('address') }}</label>
+
+                        <div class="col-sm-3">
+                            {% set addr_level1={} %}
+                            <select class="form-control" id="addr_level1" name="addr_level1">
+                                <option value="">-{{ _ul('please_choose') }}-</option>
+                                {% for city in ship_cities %}
+                                <option value="{{ city['value'] }}" {% if post_data.get('addr_level1', '')==city['value'] %}{% set addr_level1=city %}selected="selected"{% end %}>{{ _ul(city['display']) }}</option>
+                                {% end %}
+                            </select>
+                            {% if field_error.get('addr_level1','') %}
+                            <span class="error">{{ field_error['addr_level1'] }}</span>
+                            {% end %}
+                        </div>
+                        <div class="col-sm-3">
+                            <select class="form-control" id="addr_level2" {% if not post_data.get('addr_level2', '') %}disabled="disabled"{% end %} name="addr_level2">
+                            {% for addr_l2 in addr_level1.get('children', '') %}
+                            <option value="{{ addr_l2['value'] }}" {% if addr_l2['value']==post_data.get('addr_level2', '') %}selected="selected"{% end %}>{{ _ul(addr_l2['display']) }}</option>
+                            {% end %}
+                            </select>
+                            {% if field_error.get('addr_level2','') %}
+                            <span class="error">{{ field_error['addr_level2'] }}</span>
+                            {% end %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-1 col-sm-6">
+                            <input type="text" value="{{ post_data.get('addr_level3', '')}}" name="addr_level3"
+                                   class="form-control"/>
+                            {% if field_error.get('addr_level3','') %}
+                            <span class="error">{{ field_error['addr_level3'] }}</span>
+                            {% end %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">{{ _ul('receiver') }}</label>
+
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="receiver" name="receiver"
+                                   value="{{ post_data.get('receiver', '')}}">
+                            {% if field_error.get('receiver','') %}
+                            <span class="error">{{ field_error['receiver'] }}</span>
+                            {% end %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">{{ _ul('phone') }}</label>
+
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="phone" name="phone"
+                                   value="{{ post_data.get('phone', '')}}">
+                            {% if field_error.get('phone','') %}
+                            <span class="error">{{ field_error['phone'] }}</span>
+                            {% end %}
+                        </div>
+                    </div>
+                    <!--<div class="form-group">-->
+                    <!--<label class="col-sm-2 control-label">送货时间</label>-->
+
+                    <!--<div class="col-sm-5">-->
+                    <!--<input type="date" class="form-control" id="arrive_date" name="arrive_date"/>-->
+                    <!--</div>-->
+                    <!--<div class="col-sm-5">-->
+                    <!--<input type="time" class="form-control" id="arrive_time" name="arrive_time"/>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <div class="form-group">
+                        {% set need_receipt=(post_data.get('need_receipt', '') != '') %}
+                        <label class="col-sm-1 control-label">{{ _ul('write_receipt') }}</label>
+
+                        <div class="col-sm-6">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="need_receipt" {% if need_receipt %} checked="checked" {% end %} name="need_receipt" value="1"/>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: {% if need_receipt %} blocked {% else %} none {% end %}" id="receipt_detail1">
+                        <div class="col-sm-offset-1 col-sm-6">
+                            {% for rece_sort in receipt_sort %}
+                            <label class="radio-inline">
+                                <input type="radio" name="receipt_sort" value="{{ rece_sort['value'] }}" {% if post_data.get('receipt_sort','')== rece_sort['value'] %}checked="checked"{% end %}> {{ _ul(rece_sort['display']) }}
                             </label>
+                            {% end %}
+                            {% if field_error.get('receipt_sort','') %}
+                            <span class="error">{{ field_error['receipt_sort'] }}</span>
+                            {% end %}
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: {% if need_receipt %} blocked {% else %} none {% end %}"
+                         id="receipt_detail2">
+                        <div class="col-sm-offset-1 col-sm-3">
+                            <select name="receipt_content" class="form-control">
+                                <option value="">{{ _ul('choose_receipt_content') }}</option>
+                                {% for content in receipt_content %}
+                                <option value="{{ content['value'] }}" {% if post_data.get('receipt_content','')==content['value'] %}selected="selected"{% end %}>{{ _ul(content['display']) }}</option>
+                                {% end %}
+                            </select>
+                            {% if field_error.get('receipt_content','') %}
+                            <span class="error">{{ field_error['receipt_content'] }}</span>
+                            {% end %}
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" placeholder="{{ _ul('receipt_title') }}" name="receipt_title"
+                                   class="form-control"
+                                   value="{{ post_data.get('receipt_title', '')}}"/>
+                            {% if field_error.get('receipt_title','') %}
+                            <span class="error">{{ field_error['receipt_title'] }}</span>
+                            {% end %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">{{ _ul('valcode') }}</label>
+
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="valcode" name="valcode">
+                            {% if field_error.get('valcode','') %}
+                            <span class="error">{{ field_error['valcode'] }}</span>
+                            {% end %}
+                        </div>
+                        <div class="col-sm-3">
+                            <img src="/verify_code" alt="{{ _ul('click_to_refresh')}}"
+                                 onclick="javascript:refresh_code(this);"
+                                 class="verify_code"/> {{ _ul('click_to_refresh')}}
                         </div>
                     </div>
                 </div>
-                <div class="form-group" style="display: {% if need_receipt %} blocked {% else %} none {% end %}"
-                     id="receipt_detail1">
-                    <div class="col-sm-offset-1 col-sm-6">
-                        <label class="radio-inline">
-                            <input type="radio" name="receipt_sort" id="person_receipt" value="{{ _ul('person_receipt') }}" {% if post_data.get('receipt_sort','')=={{ _ul('person_receipt') }} %}checked="checked"{% end %}> {{ _ul('person_receipt') }}
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="receipt_sort" id="company_receipt" value="{{ _ul('company_receipt') }}" {% if post_data.get('receipt_sort','')=={{ _ul('person_receipt') }} %}checked="checked"{% end %}> {{ _ul('person_receipt') }}
-                        </label>
-                        {% if field_error.get('receipt_sort','') %}
-                        <span class="error">{{ field_error['receipt_sort'] }}</span>
-                        {% end %}
-                    </div>
-                </div>
-                <div class="form-group" style="display: {% if need_receipt %} blocked {% else %} none {% end %}" id="receipt_detail2">
-                    <div class="col-sm-offset-1 col-sm-3">
-                        <select name="receipt_content" class="form-control">
-                            <option value="">{{ _ul('choose_receipt_content') }}</option>
-                            {% for content in receipt_content %}
-                            <option value="{{ content }}" {% if post_data.get('receipt_content','')==content %}selected="selected"{% end %}>{{ content }}</option>
-                            {% end %}
-                        </select>
-                        {% if field_error.get('receipt_content','') %}
-                        <span class="error">{{ field_error['receipt_content'] }}</span>
-                        {% end %}
-                    </div>
-                    <div class="col-sm-3">
-                        <input type="text" placeholder="{{ _ul('receipt_title') }}" name="receipt_title" class="form-control"
-                               value="{{ post_data.get('receipt_title', '')}}"/>
-                        {% if field_error.get('receipt_title','') %}
-                        <span class="error">{{ field_error['receipt_title'] }}</span>
-                        {% end %}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-1 control-label">{{ _ul('valcode') }}</label>
-
-                    <div class="col-sm-3">
-                        <input type="text" class="form-control" id="valcode" name="valcode">
-                        {% if field_error.get('valcode','') %}
-                        <span class="error">{{ field_error['valcode'] }}</span>
-                        {% end %}
-                    </div>
-                    <div class="col-sm-3">
-                        <img src="/verify_code" alt="{{ _ul('click_to_refresh')}}" onclick="javascript:refresh_code(this);"
-                             class="verify_code"/> {{ _ul('click_to_refresh')}}
-                    </div>
-                </div>
             </div>
-        </div>
-        <div class="pay_sort">
-            <h3>{{ _ul('pay_sort') }}</h3>
-            {% for pay_sort in pay_sorts %}
-            <label class="radio-inline">
-                <input type="radio" name="pay_sort" value="{{ pay_sort }}" {% if post_data.get('pay_sort','')==pay_sort %}checked="checked"{% end %}> {{ pay_sort }}
-            </label>
-            {% end %}
-            {% if field_error.get('pay_sort','') %}
-            <span class="error">{{ field_error['pay_sort'] }}</span>
-            {% end %}
-
-        </div>
-        <div class="order_list">
-            <h3>{{ _ul('my_order') }}</h3>
-            {% if field_error.get('order','') %}
-            <span class="error">{{ field_error['order'] }}</span>
-            {% end %}
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>{{ _ul('product') }}</th>
-                    <th>{{ _ul('attr') }}</th>
-                    <th>{{ _ul('price') }}</th>
-                    <th>{{ _ul('count') }}</th>
-                    <th>{{ _ul('subtotal') }}</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                {% set money_unit = _ul('currency_unit') %}
-                {% for product in product_list_order %}
-                <tr>
-                    <input type="hidden" value="{{ product['pid'] }}" name="product_id_list_in_order"/>
-                    <td>{{ product['name'] }}</td>
-                    <td>{{ product['volume'] }}</td>
-                    <td>{{ money_unit }}{{ product['price'] }}</td>
-                    <td><input type="number" class="product-count" value="{{ product['purchase_count'] }}"
-                               name="product-{{product['pid']}}-purchase_count"/></td>
-                    <td><span
-                            id="product-{{ product['pid'] }}-sum">{{ money_unit }}{{ product['price'] * product['purchase_count'] }}</span>
-                    </td>
-                    <td><input type="button" id="{{ product['pid']}}-deletebtn" value="{{ _ul('delete') }}" class="btn btn-danger"/></td>
-                </tr>
+            <div class="pay_sort">
+                <h3>{{ _ul('pay_sort') }}</h3>
+                {% for pay_sort in pay_sorts %}
+                <label class="radio-inline">
+                    <input type="radio" name="pay_sort" value="{{ pay_sort['value'] }}" {% if post_data.get('pay_sort','')==pay_sort['value']
+                    %}checked="checked"{% end %}> {{ _ul(pay_sort['display']) }}
+                </label>
                 {% end %}
-                <tr>
-                    <td colspan="4" class="text-right">
-                        <p>{{ _ul('total')}}<span id="product_sum_count">{{ product_sum_count }}</span>{{ _ul('piece') }} {{ _ul('product_total_price') }}: </p>
+                {% if field_error.get('pay_sort','') %}
+                <span class="error">{{ field_error['pay_sort'] }}</span>
+                {% end %}
 
-            <p>{{ _ul('delivery_cost') }}: </p>
+            </div>
+            <div class="order_list">
+                <h3>{{ _ul('my_order') }}</h3>
+                {% if field_error.get('order','') %}
+                <span class="error">{{ field_error['order'] }}</span>
+                {% end %}
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>{{ _ul('product') }}</th>
+                        <th>{{ _ul('attr') }}</th>
+                        <th>{{ _ul('price') }}</th>
+                        <th>{{ _ul('count') }}</th>
+                        <th>{{ _ul('subtotal') }}</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set money_unit = _ul('currency_unit') %}
+                    {% for product in product_list_order %}
+                    <tr>
+                        <input type="hidden" value="{{ product['pid'] }}" name="product_id_list_in_order"/>
+                        <td>{{ product['name'] }}</td>
+                        <td>{{ product['volume'] }}</td>
+                        <td>{{ money_unit }}{{ product['price'] }}</td>
+                        <td><input type="number" class="product-count" value="{{ product['purchase_count'] }}"
+                                   name="product-{{product['pid']}}-purchase_count"/></td>
+                        <td><span
+                                id="product-{{ product['pid'] }}-sum">{{ money_unit }}{{ product['price'] * product['purchase_count'] }}</span>
+                        </td>
+                        <td><input type="button" id="{{ product['pid']}}-deletebtn" value="{{ _ul('delete') }}"
+                                   class="btn btn-danger"/></td>
+                    </tr>
+                    {% end %}
+                    <tr>
+                        <td colspan="4" class="text-right">
+                            <p>{{ _ul('total')}}<span id="product_sum_count">{{ product_sum_count }}</span>{{
+                                _ul('piece') }} {{ _ul('product_total_price') }}: </p>
 
-            <p>{{ _ul('total_price')}}: </p>
-                    </td>
-                    <td>
-                        <p><span id="product_sum_price" class="font-bold">{{ money_unit }}{{ product_sum_price }}</span></p>
-                        <p><span id="shipping_cost" class="font-bold">{{ money_unit }}{{ shipping_cost }}</span></p>
-                        <p><span id="total_price" class="font-bold text-danger">{{ money_unit }}{{ product_sum_price + shipping_cost }}</span></p>
-                    </td>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="sum_product_price text-primary">
+                            <p>{{ _ul('delivery_cost') }}: </p>
 
-        </div>
-        <div class="btn_listing">
-            <a class="btn btn-default" id="return_shopcar_btn" href="/shopcar">{{ _ul('return_cart') }}</a>
-            <p class="pull-right">
-            <input type="submit" value="{{ _ul('submit_order') }}" class="btn btn-primary pull-right" id="confirm_order_btn"/>
-            </p>
-        </div>
-    </form>
+                            <p>{{ _ul('total_price')}}: </p>
+                        </td>
+                        <td>
+                            <p><span id="product_sum_price"
+                                     class="font-bold">{{ money_unit }}{{ product_sum_price }}</span></p>
 
-</div>
+                            <p><span id="shipping_cost" class="font-bold">{{ money_unit }}{{ shipping_cost }}</span></p>
+
+                            <p><span id="total_price" class="font-bold text-danger">{{ money_unit }}{{ product_sum_price + shipping_cost }}</span>
+                            </p>
+                        </td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="sum_product_price text-primary">
+
+            </div>
+            <div class="btn_listing">
+                <a class="btn btn-default" id="return_shopcar_btn" href="/shopcar">{{ _ul('return_cart') }}</a>
+
+                <p class="pull-right">
+                    <input type="submit" value="{{ _ul('submit_order') }}" class="btn btn-primary pull-right"
+                           id="confirm_order_btn"/>
+                </p>
+            </div>
+        </form>
+
+    </div>
 </div>
 {% end %}
 {% block footer %}
 <script type="text/javascript">
-    var ship_cities = jQuery.parseJSON("{{ tojsonstr(ship_cities) }}".replace(/&quot;/g, '\"'));
+    var ship_cities = jQuery.parseJSON("{{ address_to_display_str(ship_cities) }}".replace(/&quot;/g, '\"'));
 </script>
 <script type="text/javascript" src="{{ static_url('js/order.js') }}"></script>
 {% end %}

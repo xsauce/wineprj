@@ -1,65 +1,65 @@
 {
   "product_label": [
-    {"value": 1, "display": "taste_good"},
-    {"value": 2, "display": "beautiful"}
+    {"value": "1", "display": "taste_good"},
+    {"value": "2", "display": "beautiful"}
   ],
   "wine_sort": [
-    {"value": 1, "display": "red_wine"},
-    {"value": 2, "display": "white_wine"}
+    {"value": "1", "display": "red_wine"},
+    {"value": "2", "display": "white_wine"}
   ],
   "wine_level": [
-    {"value": 1, "display": "AOC"},
-    {"value": 2, "display": "VDOS"},
-    {"value": 3, "display": "VCE"}
+    {"value": "1", "display": "AOC"},
+    {"value": "2", "display": "VDOS"},
+    {"value": "3", "display": "VCE"}
   ],
   "scene": [
-    {"value": 1, "display": "dating"},
-    {"value": 2, "display": "biz"},
-    {"value": 3, "display": "party"},
-    {"value": 4, "display": "visit"}
+    {"value": "1", "display": "dating"},
+    {"value": "2", "display": "biz"},
+    {"value": "3", "display": "party"},
+    {"value": "4", "display": "visit"}
   ],
   "grape_sort": [
-    {"value": 1, "display":"selah"},
-    {"value": 2, "display":"miller"},
-    {"value": 3, "display":"sauvignon_blanc" },
-    {"value": 4, "display":"cabernet_sauvignon"},
-    {"value": 5, "display":"macabeo"}
+    {"value": "1", "display":"selah"},
+    {"value": "2", "display":"miller"},
+    {"value": "3", "display":"sauvignon_blanc" },
+    {"value": "4", "display":"cabernet_sauvignon"},
+    {"value": "5", "display":"macabeo"}
   ],
   "region": [
-    {"value": 1, "display": "bordeaux"},
-    {"value": 2, "display": "burgundy"}
+    {"value": "1", "display": "bordeaux"},
+    {"value": "2", "display": "burgundy"}
   ],
   "country": [
-    {"value": 1, "display": "france"},
-    {"value": 2, "display": "italy"}
+    {"value": "1", "display": "france"},
+    {"value": "2", "display": "italy"}
   ],
   "brand": [
-    {"value": 1, "display": "laffey"},
-    {"value": 2, "display": "gallo"}
+    {"value": "1", "display": "laffey"},
+    {"value": "2", "display": "gallo"}
   ],
   "post_place": [
-    {"value": 1, "display": "home"},
-    {"value": 2, "display": "recommend"}
+    {"value": "1", "display": "home"},
+    {"value": "2", "display": "recommend"}
   ],
   "pay_sort": [
-    {"value": 1, "display": "alipay"},
-    {"value": 2, "display": "cod"}
+    {"value": "1", "display": "alipay"},
+    {"value": "2", "display": "cod"}
   ],
   "receipt_content": [
-    {"value": 1, "display": "food"},
-    {"value": 2, "display": "wine"}
+    {"value": "1", "display": "food"},
+    {"value": "2", "display": "wine"}
   ],
   "receipt_sort": [
-    {"value": 1, "display": "person"},
-    {"value": 2, "display": "company"}
+    {"value": "1", "display": "person_receipt"},
+    {"value": "2", "display": "company_receipt"}
   ],
   "order_state": [
-    {"value": 0, "display": "no_pay"},
-    {"value": 1, "display": "paid"},
-    {"value": 2, "display": "handler"},
-    {"value": 3, "display": "delivery"},
-    {"value": 4, "display": "finish"},
-    {"value": 5, "display": "cancel"}
+    {"value": "0", "display": "no_pay"},
+    {"value": "1", "display": "paid"},
+    {"value": "2", "display": "handler"},
+    {"value": "3", "display": "delivery"},
+    {"value": "4", "display": "finish"},
+    {"value": "5", "display": "cancel"}
   ],
   "address": [
     {"value": "shanghai", "display": "shanghai", "children": [
@@ -67,7 +67,7 @@
       {"value": "huangpu", "display": "huangpu"},
       {"value": "jingan", "display": "jingan"}]
     },
-    {"value": "jiangsu", "children": [
+    {"value": "jiangsu", "display": "jiangsu", "children": [
       {"value": "nantong", "display": "nantong"},
       {"value": "nanjing", "display": "nanjing"}
     ]}

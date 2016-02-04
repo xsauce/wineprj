@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 from peewee import PrimaryKeyField, CharField, TextField, DateTimeField, ForeignKeyField, IntegerField, FloatField
 from models.CommonModel import BaseModel, UUIDField, TimeStampField, CacheModel
 
@@ -76,13 +77,13 @@ class ShopPhoto(BaseModel):
 
 
 class User(BaseModel):
-    uid = UUIDField(primary_key=True)
+    uid = UUIDField(primary_key=True, null=False)
     username = CharField(max_length=100, null=False)
     password = CharField(max_length=50, null=False)
     email = CharField(max_length=50, null=False)
-    phone = CharField(max_length=20)
-    avatar = CharField(max_length=50)
-    created_at = DateTimeField(null=False)
+    phone = CharField(max_length=20, default=None)
+    avatar = CharField(max_length=50, default=None)
+    created_at = DateTimeField(null=False, default='NOW()')
     updated_at = TimeStampField(null=False)
 
 
@@ -188,7 +189,7 @@ class SaleOrder(BaseModel):
     receipt_title = CharField(max_length=100)
     pay_sort = CharField(max_length=2, choices=PaySort.choices())
     order_state = CharField(max_length=2, choices=OrderState.choices())
-    created_at = DateTimeField(null=False)
+    created_at = DateTimeField(null=False, default='NOW()')
     updated_at = TimeStampField(null=False)
 
 

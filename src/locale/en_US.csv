@@ -1,83 +1,106 @@
-write_receipt,Write Receipt
+alipay,ALiPay
 all,ALL
-login_successfully,Login Successfully
 my_cart,My Cart
-selah,Selah
-confirm_password,Confirm Password
-miller,Miller
+sauvignon_blanc,Sauvignon Blanc
 repeat_password,Repeat Password
-scene,Scene
+wrong_valcode,Wrong ValidCode
+order_processing,Processing
+passwords_type_twice_not_match,Password Type Twice do not Match
+incorrect_district,Incorrect District
+continue_shopping,Continue Shopping
+order_cancel,Cancel
+confirm_password,Confirm Password
+my_order,My Order
+shanghai,Shanghai
+first_register,First Register
+wrong_password,Wrong Password
+has,Has
+back_to_top,Back to top
+chateaus,Chateaus
+try_again,Try Again
+receipt_title,Receipt Title
+page_not_found,Page Not Found
+currency_unit,$
+total_price,Total Price
+incorrect_purchase_count,Incorrect Purchase Count
+pay_sort,Pay Sort
+miller,Miller
 choose_receipt_content,Choose Receipt Content
 no_exist_email_or_user_name,No Exists Email or User Name
-email_style_not_correct,Email Style is not correct
-wrong_valcode,Wrong ValidCode
 wine_level,Wine Level
 empty_password,Empty Password
-return_cart,Return Cart
-passwords_type_twice_not_match,Password Type Twice do not Match
 home,Home
-total,Total
-count,Count
-continue_shopping,Continue Shopping
-has,Has
-currency_unit,$
-macabeo,Macabeo
-add_in,ADD IN
-area,Area
-country,Country
+minhang,Minhang
+incorrect_pay_sort,Incorrect Pay Sort
 review,Review
-first_register,First Register
-valcode,ValidCode
-submit,Submit
-wrong_password,Wrong Password
-email_is_registered,Email is registered
-product_added_into_cart,The product is added into cart
 your_email_or_username,Your email or user name
-cabernet_sauvignon ,Cabernet Sauvignon
-product_total_price,Product Total Price
-user_name,User Name
 email,Email
+company_receipt,Company Receipt
+cart,Cart
+please_choose,Please Choose
+empty_address_detail,Empty Address Detail
+address,Address
+empty_user_name,Empty User Name
+incorrect_city,Incorrect City
+product_added_into_cart,The product is added into cart
+country,Country
+delivery_info,Delivery Info
+products,Products
+cod,COD
+receiver,Receiver
+chateau,Chateau
+scene,Scene
+email_style_not_correct,Email Style is not correct
+return_cart,Return Cart
+total,Total
+area,Area
+submit,Submit
+cabernet_sauvignon ,Cabernet Sauvignon
+user_name,User Name
 store,Store
+sort,Sort
+buy,BUY
+incorrect_receipt_sort,Incorrect Receipt Sort
+nopay,No Pay
+brand,Brand
+volume,Volume
+phone,Phone
+selah,Selah
+incorrect_phone,Incorrect Phone
+count,Count
+incorrect_name,Incorrect Name
+attr,Attribute
+confirm_order,Confirm Order
+grape_sort,Grape Sort
+product_total_price,Product Total Price
+piece,Piece
+delete,Delete
+write_receipt,Write Receipt
+login_successfully,Login Successfully
+order_finish,Completed
+product_delivery,Delivery
+password,Password
+macabeo,Macabeo
+incorrect_receipt_content,Incorrect Receipt Content
+tip,Tip
+valcode,ValidCode
+email_is_registered,Email is registered
+empty_receipt_title,Empty Receipt Title
 register_successfully,Register Successfully
 submit_order,Submit Order
 product,Product
-buy,BUY
 description,Description
-back_to_top,Back to top
-person_receipt,Person Receipt
 price,Price
-company_receipt,Company Receipt
-chateaus,Chateaus
-cart,Cart
-please_choose,Please Choose
-sort,Sort
-phone,Phone
+person_receipt,Person Receipt
+paid,Paid
+add_in,ADD IN
 mylists,MyLists
-my_order,My Order
-brand,Brand
+submit_order_successfully,Submit Order Successfully
 delivery_cost,Delivery Cost
-sauvignon_blanc,Sauvignon Blanc
-address,Address
-empty_user_name,Empty User Name
-password,Password
 subtotal,Subtotal
-chateau,Chateau
+login,Login
 purchase_count,Purchase Count
 click_to_refresh,Click To Refresh
-volume,Volume
-total_price,Total Price
-attr,Attribute
-confirm_order,Confirm Order
-tip,Tip
-delivery_info,Delivery Info
 register,Register
-receipt_title,Receipt Title
-pay_sort,Pay Sort
-products,Products
 bottle,Bottle
-receiver,Receiver
-login,Login
-piece,Piece
-grape_sort,Grape Sort
 email_or_username,Email or User Name
-delete,Delete

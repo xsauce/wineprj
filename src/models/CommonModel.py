@@ -67,6 +67,10 @@ class CacheModel(object):
         return cache.get(cls.__objname__)
 
     @classmethod
+    def value_list(cls):
+        return [d['value'] for d in cls.select()]
+
+    @classmethod
     def choices(cls):
         return [(i[VALUE], i[DISPLAY]) for i in cls.select()]
 

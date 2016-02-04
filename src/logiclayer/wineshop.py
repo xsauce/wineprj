@@ -6,9 +6,14 @@ from const import *
 from logiclayer.helper import return_json
 from models.CommonModel import m2d, DB
 from models.wineshop import Poster, PaySort, ReceiptContent, Product, ProductPhoto, User, OrderState, SaleOrder, \
-    SaleOrderDetail, ShipCity, GrapeSort, Scene, ProductLabel, Country, Brand, Region, WineSort, WineLevel
-from utils.image_tool import get_thumbnail_uri
+    SaleOrderDetail, ShipCity, GrapeSort, Scene, ProductLabel, Country, Brand, Region, WineSort, WineLevel, ReceiptSort, \
+    SaleOrderTrace, Repertory
+from utils.exceptions import NoEnoughStore, NoProductInRepertory
 
+
+class OrderStateLL(object):
+    def value(self, display):
+        return OrderState.get_value(display)
 
 class ProductLL(object):
     def _query_statement(self, k, v):
@@ -51,6 +56,9 @@ class ProductLL(object):
             product_list.append(dp)
         return product_list
 
+    def get_product_obj_by_pid_list(self, pid_list):
+        return Product.select().where(Product.pid << pid_list)
+
     def get_product_by_pid_list(self, pid_list):
         '''
         :param pid_list: list type
@@ -76,44 +84,112 @@ class ProductLL(object):
 
 
 class SaleOrderLL(object):
-    def add_one_order(self, order, order_detail, user=None):
-        o_obj = SaleOrder(**order)
-        od_obj_list = []
-        for od in order_detail:
-            od_obj_list.append(SaleOrderDetail(**od))
-        user_obj = None
+    def __init__(self):
+        self.err = {}
+
+    def add_one_order(self, order_data, user):
+        order_detail_data = order_data['order']
+        order_obj = SaleOrder(
+            soid=str(uuid.uuid4()),
+            addr_level1=order_data['addr_level1'],
+            addr_level2=order_data['addr_level2'],
+            addr_level3=order_data['addr_level3'],
+            shipping_cost=order_data['shipping_cost'],
+            receiver=order_data['receiver'],
+            phone=order_data['phone'],
+            receipt_sort=order_data['receipt_sort'],
+            receipt_content=order_data['receipt_content'],
+            receipt_title=order_data['receipt_title'],
+            pay_sort=order_data['pay_sort']
+        )
         if user:
-            user_obj = User(user)
-        if o_obj.pay_sort == PaySort.get_value(COD):
-            o_obj.state = OrderState.get_value(HANDLING)
-        elif o_obj.pay_sort == PaySort.get_value(ALIPAY):
-            o_obj.state = OrderState.get_value(NOPAY)
+            order_obj.user = User(**user)
+        pay_sort_ll = PaySortLL()
+        order_state_ll = OrderStateLL()
+        if order_obj.pay_sort == pay_sort_ll.value(COD):
+            order_obj.order_state = order_state_ll.value(HANDLING)
+        elif order_obj.pay_sort == pay_sort_ll.value(ALIPAY):
+            order_obj.order_state = order_state_ll.value(NOPAY)
+        product_ll = ProductLL()
+        product_details = product_ll.get_product_obj_by_pid_list(order_detail_data.keys())
+        order_detail_obj = []
         product_count = 0
         product_sum_price = 0.0
-        for odb in od_obj_list:
-            product_count += odb.purchase_count
-            product_sum_price += odb.purchase_count * odb.price
-        o_obj.product_count = product_count
-        o_obj.product_sum_price = product_sum_price
-        if user_obj:
-            o_obj.user = user_obj
-        with DB.execution_context():
-            o_obj.soid = str(uuid.uuid4())
-            o_obj.save()
-            pid_with_count = []
-            for odb in od_obj_list:
-                odb.sale_order = o_obj
-                pid_with_count.append({'pid': od.pid, 'product_count': od.purchase_count})
-                odb.save()
-            Repertory.sale_product_for_batch(pid_with_count)
-            trace = SaleOrderTrace({'soid': soid, 'state': order.state})
-            SaleOrderTrace.insert_one_with_created_updated_at_return_pk(trace)
+        for pd in product_details:
+            sod = SaleOrderDetail(
+                sod_id=str(uuid.uuid4()),
+                sale_order=order_obj,
+                product=pd,
+                purchase_count=order_detail_data[pd.pid],
+                price=pd.price
+            )
+            product_count += sod.purchase_count
+            product_sum_price += sod.purchase_count * sod.price
+            order_detail_obj.append(sod)
+        order_obj.product_count = product_count
+        order_obj.product_sum_price = product_sum_price
+        trace = SaleOrderTrace(
+            sot_id=str(uuid.uuid4()),
+            sale_order=order_obj,
+            state=order_obj.order_state
+        )
+        reper_ll = RepertoryLL()
+        product_reper_list = reper_ll.product_repertory_by_pid_list(order_detail_data.keys())
+        with DB.transaction() as trans:
+            try:
+                for order_detail in order_detail_obj:
+                    product = order_detail.product
+                    product_reper_list = filter(lambda x: x.product.pid == product.pid, product_reper_list)
+                    if not product_reper_list:
+                        product_reper = Repertory(
+                            product=product
+                        )
+                        # raise NoProductInRepertory(pid)
+                    else:
+                        product_reper = product_reper_list[0]
+                        # if product_reper.store_count < order_detail.purchase_count:
+                        #     raise NoEnoughStore(product.pid)
+                    product_reper.sale_count += order_detail.purchase_count
+                    product_reper.store_count -= order_detail.purchase_count
+                    product_reper.save()
+                order_obj.save()
+                for d in order_detail_obj:
+                    d.save()
+                trace.save()
+                trans.commit()
+            except NoProductInRepertory as e:
+                self.err[e.product_id] = str(e)
+                trans.rollback()
+            except NoEnoughStore as e:
+                self.err[e.product_id] = str(e)
+                trans.rollback()
+            except Exception, e:
+                self.err['all'] = str(e)
+                trans.rollback()
+
+class RepertoryLL(object):
+    def product_repertory_by_pid_list(self, pids):
+        products = [Product(pid=pid) for pid in pids]
+        return Repertory.select().where(Repertory.product << products)
 
 
 class ShipCityLL(object):
     def get_all_ship_cities(self):
         rs = ShipCity.select()
         return rs
+
+    def get_addr_level1_val_list(self):
+        rs = ShipCity.select()
+        return [d['value'] for d in rs]
+
+    def get_addr_level2_val_list(self, addr_level1):
+        rs = ShipCity.select()
+        city = filter(lambda x: x['value'] == addr_level1, rs)
+        if city:
+            city = city[0]
+            return [d['value'] for d in city['children']]
+        else:
+            return []
 
 
 class PosterLL(object):
@@ -132,10 +208,29 @@ class PaySortLL(object):
     def get_all_sort(self):
         return PaySort.select()
 
+    def get_val_list(self):
+        return PaySort.value_list()
+
+    def value(self, display):
+        return PaySort.get_value(display)
+
+
 
 class ReceiptLL(object):
     def get_all_content(self):
         return ReceiptContent.select()
+
+    def get_all_sort(self):
+        return ReceiptSort.select()
+
+    def sort_value(self, display):
+        return ReceiptSort.get_value(display)
+
+    def get_content_val_list(self):
+        return ReceiptContent.value_list()
+
+    def get_sort_val_list(self):
+        return ReceiptSort.value_list()
 
 
 class UserLL(object):
@@ -149,10 +244,12 @@ class UserLL(object):
 
     @return_json
     def valid_user(self, login_key, password):
-        user = User.select().where(User.email == login_key | User.username == login_key)
+        user = User.get(User.email == login_key | User.username == login_key)
         if user:
             if user.password == self._md5_password(password):
-                user.password = None
+                user.password = ''
+                user.created_at = ''
+                user.updated_at = ''
                 return user
             else:
                 self.error.append('wrong_password')
@@ -164,7 +261,7 @@ class UserLL(object):
         if rs:
             self.error.append('email_is_registered')
             return 0
-        user.password = self._md5_password(user.get('password'))
-        with DB.execution_context():
-            User.create(**user)
+        user['password'] = self._md5_password(user.get('password'))
+        user['uid'] = str(uuid.uuid4())
+        User.create(**user)
         return 1

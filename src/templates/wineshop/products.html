@@ -6,9 +6,9 @@
     <div class="row">
         <div class="col-sm-6 col-md-2">
         <div class="list-group" id="filter_list">
-            <a href="/products" class="list-group-item active" data-item="">{{ _ul('all') }}</a>
+            <a href="/products" class="list-group-item {% if query_condition.get('grape_sort', '')=='' %}active{% end %}" data-item="">{{ _ul('all') }}</a>
             {% for g in grape_sort %}
-            <a href="?grape_sort={{ g['value'] }}" class="list-group-item" data-item="{{ g['value'] }}">{{ _ul(g['display']) }}</a>
+            <a href="?grape_sort={{ g['value'] }}" class="list-group-item {% if query_condition.get('grape_sort')==str(g['value']) %}active{% end %}" data-item="{{ g['value'] }}">{{ _ul(g['display']) }}</a>
             {% end %}
           </div>
         </div>

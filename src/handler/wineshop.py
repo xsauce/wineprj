@@ -1,4 +1,5 @@
 # coding:utf-8
+from functools import partial
 import re
 import traceback
 from handler.CommonHandler import WineShopCommonHandler
@@ -7,11 +8,12 @@ from logiclayer.wineshop import *
 from utils.exceptions import OrderIsEmpty, SessionOverTime
 from utils.image_tool import get_thumbnail_uri
 # from utils.mongohelper import MongoHelper
-from utils.page_func import tojsonstr
+from utils.page_func import tojsonstr, address_to_display_json
 
 
 def _show_product_list_with_count(pid_with_count):
-    product_list = ProductLL.get_product_by_pid_list(pid_with_count.keys())
+    product_ll = ProductLL()
+    product_list = product_ll.get_product_by_pid_list(pid_with_count.keys())
     product_sum_count, product_sum_price = 0, 0
     for p in product_list:
         purchase_count = int(pid_with_count[p['pid']])
@@ -50,7 +52,7 @@ class ProductsHandler(WineShopCommonHandler):
         product_list = []
         for product in product_result:
             product_list.append(product)
-        self.page_render('wineshop/products.html', product_list=product_list, grape_sort=grape_sort)
+        self.page_render('wineshop/products.html', product_list=product_list, grape_sort=grape_sort, query_condition=query_condition)
 
 
 class ProductDetailHandler(WineShopCommonHandler):
@@ -104,6 +106,30 @@ class ShopCarHandler(WineShopCommonHandler):
         self._show_page(post_data=self.request.body_arguments)
 
 
+class OrderView(object):
+    def __init__(self, handler):
+        self.handler = handler
+
+    def render(self, order, field_error, post_data):
+        product_list_order, product_sum_count, product_sum_price = _show_product_list_with_count(order)
+        ship_cities = ShipCityLL().get_all_ship_cities()
+        pay_sorts = PaySortLL().get_all_sort()
+        receipt_content = ReceiptLL().get_all_content()
+        receipt_sort = ReceiptLL().get_all_sort()
+        shipping_cost = 5
+        self.handler.page_render('wineshop/order.html',
+                         product_list_order=product_list_order,
+                         product_sum_count=product_sum_count,
+                         product_sum_price=product_sum_price,
+                         shipping_cost=shipping_cost,
+                         ship_cities=ship_cities,
+                         receipt_content=receipt_content,
+                         receipt_sort=receipt_sort,
+                         pay_sorts=pay_sorts,
+                         field_error=field_error,
+                         post_data=post_data,
+                         address_to_display_str=partial(address_to_display_json, _ul=self.handler._ul))
+
 class ConfirmOrderHandler(WineShopCommonHandler):
     def post(self):
         order = {}
@@ -114,22 +140,8 @@ class ConfirmOrderHandler(WineShopCommonHandler):
             if not order:
                 # order is empty
                 raise OrderIsEmpty()
-            product_list_order, product_sum_count, product_sum_price = _show_product_list_with_count(order)
-            ship_cities = ShipCityLL.get_all_ship_cities()
-            pay_sorts = PaySortLL.get_all_sort()
-            receipt_content = ReceiptLL.get_all_content()
-            shipping_cost = 5
-            self.page_render('wineshop/order.html',
-                             product_list_order=product_list_order,
-                             product_sum_count=product_sum_count,
-                             product_sum_price=product_sum_price,
-                             shipping_cost=shipping_cost,
-                             ship_cities=ship_cities,
-                             receipt_content=receipt_content,
-                             pay_sorts=pay_sorts,
-                             field_error={},
-                             post_data={},
-                             tojsonstr=tojsonstr)
+            order_view = OrderView(self)
+            order_view.render(order, {}, {})
         except OrderIsEmpty, e:
             raise e
         except Exception, e:
@@ -158,17 +170,20 @@ class SubmitOrderHandlder(WineShopCommonHandler):
         post_data['order'] = order
         return post_data
 
-    def _valid_post_data(self, post_data, ship_cities, pay_sort, receipt_content):
+    def _valid_post_data(self, post_data):
         field_error = {}
-        if post_data['addr_level1'] not in ship_cities.keys():
+        ship_city_ll = ShipCityLL()
+        pay_sort_ll = PaySortLL()
+        receipt_ll = ReceiptLL()
+        if post_data['addr_level1'] not in ship_city_ll.get_addr_level1_val_list():
             field_error['addr_level1'] = self._ul('incorrect_city')
         else:
-            if post_data['addr_level2'] not in ship_cities[post_data['addr_level1']]:
+            if post_data['addr_level2'] not in ship_city_ll.get_addr_level2_val_list(post_data['addr_level1']):
                 field_error['addr_level2'] = self._ul('incorrect_district')
         if not post_data['addr_level3']:
             field_error['addr_level3'] = self._ul('empty_address_detail')
 
-        if post_data['pay_sort'] not in pay_sort:
+        if post_data['pay_sort'] not in pay_sort_ll.get_val_list():
             field_error['pay_sort'] = self._ul('incorrect_pay_sort')
 
         if post_data['receiver'] == '':
@@ -185,57 +200,41 @@ class SubmitOrderHandlder(WineShopCommonHandler):
 
         if post_data['need_receipt']:
             receipt_sort = post_data['receipt_sort']
-            if not receipt_sort or receipt_sort not in ['person_receipt', 'company_receipt']:
+            if receipt_sort not in receipt_ll.get_sort_val_list():
                 field_error['receipt_sort'] = self._ul('incorrect_receipt_sort')
             if not post_data['receipt_content']:
                 field_error['receipt_content'] = self._ul('choose_receipt_content')
-            elif post_data['receipt_content'] not in receipt_content:
+            elif post_data['receipt_content'] not in receipt_ll.get_content_val_list():
                 field_error['receipt_content'] = self._ul('incorrect_receipt_content')
-            if receipt_sort == 'company_receipt' and post_data['receipt_title'] == '':
+            if receipt_sort == receipt_ll.sort_value(COMPANY_RECEIPT) and post_data['receipt_title'] == '':
                 field_error['receipt_title'] = self._ul('empty_receipt_ title')
 
         try:
-            map(int, post_data['order'].values())
+            for k, v in post_data['order'].items():
+                post_data['order'][k] = int(v)
         except Exception, e:
-            print e
             field_error['order'] = self._ul('incorrect_purchase_count')
         return field_error
 
     def post(self):
-        ship_cities = ShipCityLL.get_all_ship_cities()
-        pay_sorts = PaySortLL.get_all_sort()
-        receipt_content = ReceiptLL.get_all_content()
         post_data = self._get_post_data()
-        field_error = self._valid_post_data(post_data, ship_cities, pay_sorts, receipt_content)
-        product_list_order, product_sum_count, product_sum_price = _show_product_list_with_count(post_data['order'])
-        shipping_cost = 5
+        field_error = self._valid_post_data(post_data)
         if field_error:
-            self.page_render('wineshop/order.html',
-                             product_list_order=product_list_order,
-                             product_sum_count=product_sum_count,
-                             product_sum_price=product_sum_price,
-                             shipping_cost=shipping_cost,
-                             ship_cities=ship_cities,
-                             receipt_content=receipt_content,
-                             pay_sorts=pay_sorts,
-                             tojsonstr=tojsonstr,
-                             field_error=field_error,
-                             post_data=post_data)
+            order_view = OrderView(self)
+            order_view.render(post_data['order'], field_error, post_data)
         else:
-            order_detail = []
-            for p in product_list_order:
-                sod = SaleOrderDetail()
-                sod.pid = p['pid']
-                sod.purchase_count = int(post_data['order'][sod.pid])
-                sod.price = p['price']
-                order_detail.append(sod)
-            order = SaleOrder(post_data)
-            order.shipping_cost = 5
-            SaleOrderLL.add_one_order(order, order_detail)
-            if order.pay_sort == PaySort.ALIPAY:
-                pass
-            elif order.pay_sort == PaySort.COD:
-                self.page_render('wineshop/tip.html', tip=self._ul('submit_order_successfully'))
+            sale_order_ll = SaleOrderLL()
+            post_data['shipping_cost'] = 5
+            sale_order_ll.add_one_order(post_data, self.get_current_user())
+            if sale_order_ll.err:
+                self.page_render('wineshop/tip.html', tip=str(sale_order_ll.err))
+            else:
+                pay_sort_ll = PaySortLL()
+                if post_data['pay_sort'] == pay_sort_ll.value(ALIPAY):
+                    # redirect to alipay page
+                    self.page_render('wineshop/tip.html', tip=self._ul(REDIRECTING_TO_ALIPY_PAGE))
+                elif post_data['pay_sort'] == pay_sort_ll.value(COD):
+                    self.page_render('wineshop/tip.html', tip=self._ul(SUBMIT_ORDER_SUCCESSFULLY))
 
 
 class LoginUserForm(object):
@@ -257,8 +256,9 @@ class LoginUserForm(object):
     def valid(self, handler):
         errors = {}
         user_ll = UserLL()
-        user = user_ll.valid_user(self.login_key, self.password, locale_func=self.locale_func)
-        errors['all'] = ','.join([self.locale_func(err) for err in user_ll.error])
+        user = user_ll.valid_user(self.login_key, self.password)
+        if user_ll.error:
+            errors['all'] = ','.join([self.locale_func(err) for err in user_ll.error])
         valcode = handler.get_session().get_item(VALCODE_NAME, '').upper()
         if valcode == '':
             raise SessionOverTime()
@@ -314,7 +314,7 @@ class LoginUserHandler(WineShopCommonHandler):
         if errors:
             self.page_render('wineshop/login.html', errors=errors, post_data=login_form.__dict__)
         else:
-            self.get_session().set_item('user', tojsonstr(user.__dict__))
+            self.get_session().set_item('user', user)
             self.page_render('wineshop/tip.html', tip=self._ul('login_successfully'))
 
 
@@ -328,11 +328,11 @@ class RegisterUserHandler(WineShopCommonHandler):
         if errors:
             self.page_render('wineshop/register.html', errors=errors, post_data=register_form.__dict__)
         else:
-            user = User(register_form.__dict__)
+            user = register_form.__dict__
             user_ll = UserLL()
             user_ll.add_one_user(user)
             if user_ll.error:
-                self.page_render('wineshop/tip.html', tip=self._ul('register_successfully'))
-            else:
                 errors['all'] = ','.join([self._ul(err) for err in user_ll.error])
                 self.page_render('wineshop/register.html', errors=errors, post_data=register_form.__dict__)
+            else:
+                self.page_render('wineshop/tip.html', tip=self._ul('register_successfully'))

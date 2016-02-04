@@ -1,7 +1,22 @@
 # coding: utf-8
+from const import NO_ENOUGH_STORE, NO_PRODUCT_IN_REPERTORY
 import settings
 
 __author__ = 'sam'
+
+class NoProductInRepertory(Exception):
+    def __init__(self, product_id):
+        self.product_id = product_id
+        super(NoProductInRepertory, self).__init__()
+    def __str__(self):
+        return NO_PRODUCT_IN_REPERTORY
+
+class NoEnoughStore(Exception):
+    def __init__(self, product_id):
+        self.product_id = product_id
+        super(NoEnoughStore, self).__init__()
+    def __str__(self):
+        return NO_ENOUGH_STORE
 
 class NotFoundProduct(Exception):
     def __init__(self, product_id):

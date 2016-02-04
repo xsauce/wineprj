@@ -2,8 +2,8 @@ import uuid
 from models.CommonModel import SessionDB, DB
 import json
 import traceback
-__author__ = 'sam'
 
+__author__ = 'sam'
 
 SESSION_SAVE_INTO_DB = 1
 
@@ -16,23 +16,23 @@ class Session(object):
         self.expiry_time = expiry_time
 
     def _get_session_from_db(self):
-        rs = SessionDB.get(session_id=self.session_id)
-        if rs:
+        try:
+            rs = SessionDB.get(SessionDB.session_id == self.session_id)
             return rs
-        else:
-            raise Exception('Session %s No Found or Expiry' % self.session_id)
+        except SessionDB.DoesNotExist:
+            return None
 
     def _set_session(self):
         sval_str = json.dumps(self.session_value)
-        with DB.execution_context():
-            if self.session_id:
-                session = SessionDB.get(session_id=self.session_id)
-                session.expiry_time = self.expiry_time
-                session.sval = sval_str
-                session.save()
-            else:
+        updated_query = SessionDB.update(
+            expiry_time=self.expiry_time, sval=sval_str
+        ).where(SessionDB.session_id == self.session_id)
+        updated = updated_query.execute()
+        if not updated:
+            if not self.session_id:
                 self.session_id = str(uuid.uuid4())
-                SessionDB.create(session_id=self.session_id, sval=sval_str, expiry_time=self.expiry_time)
+            SessionDB.create(session_id=self.session_id, sval=sval_str, expiry_time=self.expiry_time)
+
 
     def set_item(self, key, value):
         try:
@@ -55,7 +55,8 @@ class Session(object):
         if self.save_location == SESSION_SAVE_INTO_DB:
             if self.session_id and self.session_value == {}:
                 result = self._get_session_from_db()
-                self.session_value = json.loads(result.sval) if result.sval else {}
-                self.expiry_time = result.expiry_time
+                if result:
+                    self.session_value = json.loads(result.sval) if result.sval else {}
+                    self.expiry_time = result.expiry_time
         else:
             raise Exception('incorrect session save location')

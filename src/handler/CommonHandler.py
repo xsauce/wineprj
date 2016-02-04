@@ -17,11 +17,11 @@ class CommonHandler(RequestHandler):
         self._session = None
 
     def get_current_user(self):
-        return self.get_session().get_item('user')
+        return self.get_session().get_item('user', {})
 
     def get_session(self):
         session_id = self.get_secure_cookie(COOKIE_SESSION_NAME)
-        if self._session is None:
+        if not self._session:
             self._session = Session(session_id=session_id, expiry_time=settings.SESSION_EXPIRY_MINUTES)
         return self._session
 
@@ -61,11 +61,7 @@ class WineShopCommonHandler(CommonHandler):
     def page_render(self, template, **kwargs):
         shopcar = self._get_shopcar_cookie()
         kwargs.update({'count_in_shopcar': len(shopcar)})
-        user_str = self.get_current_user()
-        if user_str:
-            user = json.loads(user_str)
-        else:
-            user = {}
+        user = self.get_current_user()
         kwargs.update({'username': user.get('username', '')})
         kwargs.update({'_ul': self._ul})
         self.render(template, **kwargs)
