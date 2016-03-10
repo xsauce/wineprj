@@ -93,7 +93,7 @@ class ShopCarHandler(WineShopCommonHandler):
                 shopcar_dict[product_id] = shopcar_dict.setdefault(product_id, 0) + int(
                     self.get_body_argument('purchase_count', 0))
         product_list_in_shopcar, product_count_in_shopcar, product_sum_price_in_shopcar = _show_product_list_with_count(
-            shopcar_dict)
+                shopcar_dict)
         self.page_render('wineshop/shopcar.html',
                          product_list_in_shopcar=product_list_in_shopcar,
                          product_count_in_shopcar=product_count_in_shopcar,

@@ -56,7 +56,7 @@
   "order_state": [
     {"value": "0", "display": "no_pay"},
     {"value": "1", "display": "paid"},
-    {"value": "2", "display": "handler"},
+    {"value": "2", "display": "handling"},
     {"value": "3", "display": "delivery"},
     {"value": "4", "display": "finish"},
     {"value": "5", "display": "cancel"}

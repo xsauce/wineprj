@@ -81,9 +81,9 @@ class User(BaseModel):
     username = CharField(max_length=100, null=False)
     password = CharField(max_length=50, null=False)
     email = CharField(max_length=50, null=False)
-    phone = CharField(max_length=20, default=None)
-    avatar = CharField(max_length=50, default=None)
-    created_at = DateTimeField(null=False, default='NOW()')
+    phone = CharField(max_length=20, default='')
+    avatar = CharField(max_length=50, default='')
+    created_at = DateTimeField(null=False, default=datetime.datetime.now)
     updated_at = TimeStampField(null=False)
 
 
@@ -141,7 +141,7 @@ class Repertory(BaseModel):
     product = ForeignKeyField(Product, related_name='repertory')
     sale_count = IntegerField(null=False, default=0)
     store_count = IntegerField(null=False, default=0)
-    created_at = DateTimeField(null=False, default='NOW()')
+    created_at = DateTimeField(null=False, default=datetime.datetime.now)
     updated_at = TimeStampField(null=False)
 
     # @classmethod
@@ -177,7 +177,7 @@ class SaleOrder(BaseModel):
     # def get_order_state_display(cls, num):
     #     return cls.choice_display(num, choice_list_name='ORDER_STATE_CHOICES')
     soid = UUIDField(primary_key=True)
-    user = ForeignKeyField(User, related_name='orders')
+    user = ForeignKeyField(User, related_name='orders', null=True)
     addr_level1 = CharField(max_length=20, null=False)
     addr_level2 = CharField(max_length=20, null=False)
     addr_level3 = CharField(max_length=100, null=False)
@@ -189,7 +189,7 @@ class SaleOrder(BaseModel):
     receipt_title = CharField(max_length=100)
     pay_sort = CharField(max_length=2, choices=PaySort.choices())
     order_state = CharField(max_length=2, choices=OrderState.choices())
-    created_at = DateTimeField(null=False, default='NOW()')
+    created_at = DateTimeField(null=False, default=datetime.datetime.now)
     updated_at = TimeStampField(null=False)
 
 
@@ -205,7 +205,7 @@ class SaleOrderTrace(BaseModel):
     sot_id = UUIDField(primary_key=True)
     sale_order = ForeignKeyField(SaleOrder, related_name='trace')
     state = CharField(max_length=2, choices=OrderState.choices())
-    created_at = DateTimeField(null=False)
+    created_at = DateTimeField(null=False, default=datetime.datetime.now)
     updated_at = TimeStampField(null=False)
 
 

@@ -151,11 +151,11 @@ class SaleOrderLL(object):
                         #     raise NoEnoughStore(product.pid)
                     product_reper.sale_count += order_detail.purchase_count
                     product_reper.store_count -= order_detail.purchase_count
-                    product_reper.save()
-                order_obj.save()
+                    product_reper.save(force_insert=True)
+                order_obj.save(force_insert=True)
                 for d in order_detail_obj:
-                    d.save()
-                trace.save()
+                    d.save(force_insert=True)
+                trace.save(force_insert=True)
                 trans.commit()
             except NoProductInRepertory as e:
                 self.err[e.product_id] = str(e)

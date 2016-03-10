@@ -7,11 +7,12 @@ function refresh_code(img) {
 $(document).ready(function(){
     $(".shopcar-btn").click(function(){
         $("#shopcar_tip_modal").modal('show');
+        var cookie_str = $(this).attr("data-pid") + ':1';
         if($.cookie('shopcar')){
-            $.cookie('shopcar', $.cookie("shopcar") + ',' + $(this).attr("data-pid"));
+            $.cookie('shopcar', $.cookie("shopcar") + ',' + cookie_str);
         }
         else{
-            $.cookie('shopcar', $(this).attr("data-pid"))
+            $.cookie('shopcar', cookie_str)
         }
     });
 });

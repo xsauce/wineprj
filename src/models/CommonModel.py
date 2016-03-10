@@ -51,7 +51,7 @@ class CacheModel(object):
 
     @classmethod
     def get_display(cls, val):
-        val = int(val)
+        val = str(val)
         for i in cls.select():
             if i[VALUE] == val:
                 return i[DISPLAY]
