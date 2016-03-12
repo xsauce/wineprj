@@ -1,12 +1,101 @@
-1.mysql configuration:
 
+sudo apt-get install nginx
+sudo apt-get install mysql-server
+
+1.mysql configuration:
 mysql -u root -p
 CREATE USER 'wineprj'@'localhost' IDENTIFIED BY 'wineprj$123';
 CREATE DATABASE IF NOT EXISTS wineprj DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 GRANT ALL ON wineprj.* to 'wineprj'@'localhost' IDENTIFIED BY 'wineprj$123';
-dumps db_init.sql
+
+sudo apt-get install python-dev,libmysqld-dev,libmysqlclient-dev
+sudo pip install mysql-python
+sudo apt-get install libjpeg8 libjpeg62-dev libfreetype6 libfreetype6-dev
+sudo pip install Pillow
+sudo pip install tornado
+sudo pip install peewee
+sudo pip install supervisor
+sudo su - root
+
+echo_supervisord_conf > /etc/supervisord.conf
+
+add program
+
+[group:wineds]
+programs=wined-8000,wined-8001,wined-8002,wined-8003
+
+[program:wined-8000]
+command=python /var/www/wined/manager.py -cmd=start -port=8000
+directory=/var/www/wined
+user=www-data
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/wined.log
+loglevel=info
+
+[program:wined-8001]
+command=python /var/www/wined/manager.py -cmd=start -port=8001
+directory=/var/www/wined
+user=www-data
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/wined.log
+loglevel=info
+
+[program:wined-8002]
+command=python /var/www/wined/manager.py -cmd=start -port=8002
+directory=/var/www/wined
+user=www-data
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/wined.log
+loglevel=info
+
+[program:wined-8003]
+command=python /var/www/wined/manager.py -cmd=start -port=8003
+directory=/var/www/wined
+user=www-data
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/wined.log
+loglevel=info
 
 
-pip install tornado
-pip install peewee
-pip install mysql-python
+nginx conf diff:
+
+user www-data;
+worker_processes 5;
+pid /run/nginx.pid;
+
+events {
+        worker_connections 768;
+        use epoll;
+        # multi_accept on;
+}
+http{
+proxy_next_upstream error;
+
+        upstream wineds {
+                server 127.0.0.1:8000;
+                server 127.0.0.1:8001;
+                server 127.0.0.1:8002;
+                server 127.0.0.1:8003;
+        }
+server {
+        listen 80;
+        server_name 52.192.129.192;
+        location ^~ /static/ {
+                root /var/www/wined;
+                if ($query_string){
+                        expires max;
+                }
+        }
+        location / {
+                proxy_pass_header Server;
+                proxy_set_header Host $http_host;
+                proxy_redirect off;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-scheme $scheme;
+                proxy_pass http://wineds;
+        }
+}
